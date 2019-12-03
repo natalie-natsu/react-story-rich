@@ -1,0 +1,13 @@
+.idea
+
+*.log
+.DS_STORE
+/.eslintcache
+/coverage
+/tmp
+build
+node_modules
+.generated
+
+.npmrc
+size-snapshot.json
