@@ -1,6 +1,6 @@
-##React JS framework for story-rich games.
+## React JS framework for story-rich games.
 
-<img src="documentation/static/react-story-rich.png" alt="RSR logo">
+<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/static/react-story-rich.png" alt="RSR logo">
 
 ## Installation
 ```bash

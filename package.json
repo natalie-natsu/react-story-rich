@@ -46,6 +46,7 @@
     "eslint-plugin-markdown": "^1.0.1",
     "file-loader": "^5.0.2",
     "fs-extra": "^8.1.0",
+    "gh-pages": "^2.1.1",
     "glob": "^7.1.6",
     "glob-gitignore": "^1.0.14",
     "jest": "^24.9.0",
@@ -76,7 +77,8 @@
     "start": "yarn styleguide",
     "test": "yarn lint && yarn test:unit",
     "test:unit": "cross-env NODE_ENV=test jest",
-    "test:watch": "yarn test:unit --watch"
+    "test:watch": "yarn test:unit --watch",
+    "deploy": "gh-pages -d styleguide"
   },
   "workspaces": [
     "packages/*"
