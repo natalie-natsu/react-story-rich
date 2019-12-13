@@ -100,8 +100,7 @@ module.exports = {
     'import/resolver': {
       alias: [
         ['@react-story-rich/core', './packages/react-story-rich/src'],
-        ['@react-story-rich/lab', './packages/react-story-rich-lab/src'],
-        ['@react-story-rich/ui', './packages/react-story-rich-lab/ui'],
+        ['@react-story-rich/ui', './packages/react-story-rich-ui/src'],
       ]
     }
   }

@@ -1,16 +1,10 @@
 ````jsx harmony
 import React from 'react';
 import Element from '@react-story-rich/core/components/Element';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
+import CardElement from '@react-story-rich/ui/CardElement';
 
   // eslint-disable-next-line no-alert
-  <Element component={Card} enabled onTap={() => { alert('TAP !'); }}>
-    <CardContent>
-      <Typography>
-        Hey Tap me !
-      </Typography>
-    </CardContent>
+  <Element text component={CardElement} enabled onTap={() => { alert('TAP !'); }}>
+    Hey Tap me !
   </Element>;
 ````

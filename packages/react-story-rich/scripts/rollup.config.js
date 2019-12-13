@@ -22,17 +22,34 @@ const commonjsOptions = {
   include: /node_modules/,
   namedExports: {
     '../../node_modules/prop-types/index.js': [
-      'elementType',
+      'arrayOf',
       'bool',
+      'element',
+      'elementType',
       'func',
+      'node',
+      'number',
       'object',
       'oneOfType',
-      'element',
+      'shape',
     ],
     '../../node_modules/react-is/index.js': [
+      'isContextConsumer',
       'isFragment',
       'isValidElementType',
-      'isContextConsumer',
+    ],
+    '../../node_modules/react-redux/index.js': [
+      'connect',
+      'Provider',
+    ],
+    '../../node_modules/redux/index.js': [
+      'applyMiddleware',
+      'combineReducers',
+      'compose',
+      'createStore',
+    ],
+    '../../node_modules/redux-thunk/index.js': [
+      'thunk',
     ],
   },
 };

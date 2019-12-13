@@ -22,12 +22,22 @@ const commonjsOptions = {
   include: /node_modules/,
   namedExports: {
     '../../node_modules/prop-types/index.js': [
-      'elementType',
+      'any',
+      'arrayOf',
       'bool',
+      'element',
+      'elementType',
       'func',
+      'node',
+      'number',
       'object',
       'oneOfType',
-      'element',
+      'shape',
+      'string',
+      'symbol',
+    ],
+    '../../node_modules/react-is/index.js': [
+      'ForwardRef',
     ],
   },
 };
@@ -43,7 +53,7 @@ export default [
     output: {
       file: 'build/umd/react-story-rich-ui.development.js',
       format: 'umd',
-      name: 'ReactStoryRichUi',
+      name: 'ReactStoryRichUI',
       globals,
     },
     external: Object.keys(globals),
@@ -61,7 +71,7 @@ export default [
     output: {
       file: 'build/umd/react-story-rich-ui.production.min.js',
       format: 'umd',
-      name: 'ReactStoryRichUi',
+      name: 'ReactStoryRichUI',
       globals,
     },
     external: Object.keys(globals),
