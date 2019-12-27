@@ -33,14 +33,14 @@ function useElements(children, history, location, autoFocus) {
     const tabIndex = 1 + index;
     const node = flatChildren[from];
 
-    return isValidElement(node) && cloneElement(node, {
+    return isValidElement(node) ? cloneElement(node, {
       autoFocus,
       elementNumber: from,
-      enabled: tabIndex === array.length,
+      enabled: tabIndex >= array.length,
       key: `story-element-${index}`,
       locations,
       tabIndex,
-    });
+    }) : null;
   }, [autoFocus, flatChildren, locations]);
 
   const elements = useMemo(
@@ -111,9 +111,9 @@ Story.propTypes = {
   history: PropTypes.arrayOf(PropTypes.shape({
     /**
      * The context/state when the action is dispatched.
-     * Useful to navigate through history and retrieve context in some point.
+     * Useful to navigate through history and retrieve context for some point.
      */
-    context: PropTypes.objectOf(PropTypes.any),
+    data: PropTypes.objectOf(PropTypes.any),
     /**
      * The current location.
      */

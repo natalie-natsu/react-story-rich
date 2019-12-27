@@ -31,7 +31,7 @@ Each time you navigate between elements, an history and a location are updated,
 the history being all actions you've done before and the location being the number of the element
 you are currently on.
 
-You can also use the data state to store information like health, skills or an inventory.
+You can also use the data state to store information like health, skills or inventory.
 
 ```jsx harmony static
 import React from 'react';
@@ -58,4 +58,20 @@ function MyStory() {
   );
 }
 ```
-[You can test and modify this sample here.](https://wasa42.github.io/react-story-rich#section-small-sequence)
+### [See the full documentation here.](https://wasa42.github.io/react-story-rich)
+
+## TODOs and appreciated improvements
+* More examples in the documentation
+  * Audio
+  * Theme customization
+  * Routing
+  * Persistence
+  * Translations
+  * Virtualized Story
+  * Deployment on GH Pages/Web, Mobile and OSs
+* Accessibility
+* XBox controller integration (is that possible ?)
+* Issue templates
+* Tools for editing and debugging Elements
+* Obviously tests (sorry for not implementing them sooner 🤷)
+* Add a CI/CD

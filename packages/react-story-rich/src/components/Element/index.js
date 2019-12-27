@@ -1,9 +1,21 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { forwardRef, useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import noop from '../../helpers/noop';
 import omit from '../../helpers/omit';
-import debounce from '../../helpers/debounce';
+import isFunction from '../../helpers/isFunction';
+
+const defaultElementComponent = forwardRef(({ forwardProps, ...rest }, ref) => (
+  <div ref={ref} {...rest} />
+));
+
+defaultElementComponent.propTypes = {
+  forwardProps: PropTypes.object,
+};
+
+defaultElementComponent.defaultProps = {
+  forwardProps: {},
+};
 
 /**
  * `import Element from '@react-story-rich/core/components/Element';`
@@ -27,26 +39,26 @@ function Element(props) {
   } = props;
 
   const ref = useRef(null);
+  const [timeoutID, setTimeoutID] = React.useState(null);
+
+  const handleTimeout = useCallback(() => {
+    const delay = isFunction(timeout) ? timeout(props) : timeout;
+
+    if (delay && !timeoutID) {
+      setTimeoutID(setTimeout(() => onTimeout(props), delay + 500));
+    }
+
+    return () => clearTimeout(timeoutID);
+  }, [onTimeout, props, timeout, timeoutID]);
 
   const handleEnable = useCallback(() => {
     if (ref && ref.current && autoFocus) { ref.current.focus(); }
+
+    if (!timeoutID && enabled) { handleTimeout(); }
+    if (timeoutID && !enabled) { clearTimeout(timeoutID); }
+
     onEnable(props);
-  }, [onEnable, autoFocus, props]);
-
-  const handleTimeout = useCallback(() => {
-    const wait = typeof timeout === 'function' ? timeout(props) : timeout;
-
-    if (wait) {
-      const callback = () => onTimeout(props);
-      const debounced = debounce(callback, wait);
-
-      debounced();
-
-      return debounced.clear;
-    }
-
-    return noop;
-  }, [onTimeout, props, timeout]);
+  }, [autoFocus, timeoutID, enabled, onEnable, props, handleTimeout]);
 
   const handleTap = useCallback((e) => {
     if (enabled && onTap && !readOnly) { onTap(props, e); }
@@ -57,15 +69,15 @@ function Element(props) {
   }, [handleTap]);
 
   useEffect(handleEnable, [enabled]);
-  useEffect(handleTimeout, []);
 
   return (
     <Component
       autoFocus={autoFocus}
       data-element-number={elementNumber}
+      disabled={!enabled}
+      forwardProps={props}
       onClick={handleTap}
       onKeyPress={handleKeyPress}
-      readOnly={readOnly}
       ref={ref}
       {...omit(['data', 'dispatch', 'history', 'location'], other)}
     />
@@ -119,7 +131,7 @@ Element.propTypes = {
 
 Element.defaultProps = {
   autoFocus: false,
-  component: 'div',
+  component: defaultElementComponent,
   elementNumber: undefined, // via useElements
   enabled: false, // via useElements
   locations: [], // via useElements

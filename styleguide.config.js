@@ -19,26 +19,9 @@ module.exports = {
       content: 'documentation/actions.md',
     }],
   }, {
-    name: 'Examples',
-    exampleMode: 'expand', // 'hide' | 'collapse' | 'expand'
-    usageMode: 'expand', // 'hide' | 'collapse' | 'expand'
-    sections: [{
-      name: 'Custom Element',
-      content: 'documentation/CustomElement.md',
-    }, {
-      name: 'Small sequence',
-      content: 'documentation/SmallSequence.md',
-    }],
-  }, {
-    name: 'UI',
+    name: 'Styled Components',
     content: 'packages/react-story-rich-ui/README.md',
     components: 'packages/react-story-rich-ui/src/**/+([A-Z]*)/*.js',
-    exampleMode: 'expand', // 'hide' | 'collapse' | 'expand'
-    usageMode: 'expand', // 'hide' | 'collapse' | 'expand'],
-  }, {
-    name: 'Lab',
-    content: 'packages/react-story-rich-lab/README.md',
-    components: 'packages/react-story-rich-lab/src/**/+([A-Z]*)/*.js',
     exampleMode: 'expand', // 'hide' | 'collapse' | 'expand'
     usageMode: 'expand', // 'hide' | 'collapse' | 'expand'],
   }, {
@@ -50,6 +33,9 @@ module.exports = {
   }, {
     name: 'Changelog',
     content: 'CHANGELOG.md',
+  }, {
+    name: 'Contributors',
+    content: 'CONTRIBUTORS.md',
   }],
   webpackConfig: {
     context: path.resolve(__dirname),
@@ -57,8 +43,7 @@ module.exports = {
       modules: [path.join(__dirname, '../'), 'node_modules'],
       alias: {
         '@react-story-rich/core': path.resolve(__dirname, './packages/react-story-rich/src'),
-        '@react-story-rich/lab': path.resolve(__dirname, './packages/react-story-rich-lab/src'),
-        '@react-story-rich/ui': path.resolve(__dirname, './packages/react-story-rich-lab/ui'),
+        '@react-story-rich/ui': path.resolve(__dirname, './packages/react-story-rich-ui/src'),
       },
     },
     output: {
