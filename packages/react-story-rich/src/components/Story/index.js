@@ -105,8 +105,7 @@ Story.propTypes = {
   component: PropTypes.elementType,
   /**
    * A collection of actions from the oldest to the most recent.
-   * Is a save on its own and can easy be persisted:
-   * (action types might be strings instead of symbols in this case)
+   * Is a save on its own and can easy be persisted.
    */
   history: PropTypes.arrayOf(PropTypes.shape({
     /**
@@ -127,7 +126,7 @@ Story.propTypes = {
      * For now there is only a GO_TO action,
      * but we can imagine way more action that can be inserted in the history.
      */
-    type: PropTypes.symbol,
+    type: PropTypes.string,
   })).isRequired,
   /**
    * The current location in the all Elements tree.
