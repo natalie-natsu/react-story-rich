@@ -34,7 +34,6 @@ const commonjsOptions = {
       'oneOfType',
       'shape',
       'string',
-      'symbol',
     ],
     '../../node_modules/react-is/index.js': [
       'ForwardRef',

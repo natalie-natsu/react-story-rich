@@ -2,21 +2,21 @@ import createReducer from '../createReducer';
 import { setData } from '../data';
 
 // ACTIONS
-export const SET_HISTORY = Symbol('SET_HISTORY');
+export const SET_HISTORY = '@react-story-rich.SET_HISTORY';
 export const setHistory = (history) => ({ type: SET_HISTORY, history });
 
-export const SET_LOCATION = Symbol('SET_LOCATION');
+export const SET_LOCATION = '@react-story-rich.SET_LOCATION';
 export const setLocation = (location) => ({ type: SET_LOCATION, location });
 
-export const RESET_STORY = Symbol('RESET_STORY');
+export const RESET_STORY = '@react-story-rich.RESET_STORY';
 export const resetStory = (storage, storageItem) => ({ type: RESET_STORY, storage, storageItem });
 
-export const GO_TO = Symbol('GO_TO');
+export const GO_TO = '@react-story-rich.GO_TO';
 export const goTo = (from, to, data) => (dispatch, getState) => {
   dispatch({ type: GO_TO, from, to, data: data || getState().data });
 };
 
-export const GO_BACKWARD_TO = Symbol('GO_BACKWARD_TO');
+export const GO_BACKWARD_TO = '@react-story-rich.GO_BACKWARD_TO';
 export const goBackwardTo = (to, historyIndex, data) => (dispatch, getState) => {
   const { history } = getState();
 

@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 `### Added ### Changed ### Removed ### Fixed`
 
+## [1.0.1] - 2019-12-29
+### Fixed
+- Reducer does not update after actions (Symbol issue)
+- Layout takes more than the window height for min height
+
 ## [1.0.0] - 2019-12-27
 **Includes changes made in initial development releases (0.1.z).**
 

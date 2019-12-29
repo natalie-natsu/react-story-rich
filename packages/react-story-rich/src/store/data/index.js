@@ -1,10 +1,10 @@
 import createReducer from '../createReducer';
 
 // ACTIONS
-export const SET_DATA = Symbol('SET_DATA');
+export const SET_DATA = '@react-story-rich.SET_DATA';
 export const setData = (data) => ({ type: SET_DATA, data });
 
-export const UPDATE_DATA = Symbol('UPDATE_DATA');
+export const UPDATE_DATA = '@react-story-rich.UPDATE_DATA';
 export const updateData = (data) => ({ type: UPDATE_DATA, data });
 
 // REDUCER

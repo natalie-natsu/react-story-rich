@@ -9,7 +9,7 @@ const useStyles = makeStyles({
   root: (theme) => ({
     padding: theme.spacing(4, 0),
     width: '100%',
-    minHeight: '100vh',
+    minHeight: `calc(100vh - ${theme.spacing(4) * 2}px)`,
     backgroundColor: theme.palette.background.default,
   }),
 });
