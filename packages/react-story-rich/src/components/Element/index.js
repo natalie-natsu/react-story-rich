@@ -1,111 +1,271 @@
-import React, { forwardRef, useCallback, useEffect, useRef } from 'react';
+/* eslint-disable no-underscore-dangle, react/jsx-handler-names */
+// react/jsx-handler-names doesn't work with dangles for private methods
+
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 
-import noop from '../../helpers/noop';
-import omit from '../../helpers/omit';
-import isFunction from '../../helpers/isFunction';
+import findIndex from 'lodash/findIndex';
+import findLastIndex from 'lodash/findLastIndex';
+import identity from 'lodash/identity';
+import isFunction from 'lodash/isFunction';
+import noop from 'lodash/noop';
 
-const defaultElementComponent = forwardRef(({ forwardProps, ...rest }, ref) => (
-  <div ref={ref} {...rest} />
-));
+import Navigation, { GO_TO, REWIND_TO } from '../Navigation';
+import Route from '../Route';
 
-defaultElementComponent.propTypes = {
-  forwardProps: PropTypes.object,
-};
-
-defaultElementComponent.defaultProps = {
-  forwardProps: {},
-};
+/* Predicates for navigation actions */
+export const findByById = (_id) => ['_id', _id];
+export const findByByIndex = (index) => ['index', index];
+export const findByLabel = (label, childOf) => ({ label, childOf });
 
 /**
  * `import Element from '@react-story-rich/core/components/Element';`
- * @param props
- * @return {*}
- * @constructor
+ * `class MyCustomElement extends Element { ...`
  */
-function Element(props) {
-  const {
-    autoFocus,
-    component: Component,
-    elementNumber,
-    enabled,
-    locations,
-    onEnable,
-    onTap,
-    onTimeout,
-    readOnly,
-    timeout,
-    ...other
-  } = props;
+class Element extends Component {
+  constructor(props) {
+    super(props);
 
-  const ref = useRef(null);
-  const [timeoutID, setTimeoutID] = React.useState(null);
+    this.ref = createRef();
+    this.index = props.index; // index is passed via props but will never change
+    this.locations = props.locations; // same here
 
-  const handleTimeout = useCallback(() => {
-    const delay = isFunction(timeout) ? timeout(props) : timeout;
+    this.state = {
+      error: null,
+      errorInfo: null,
+      hasError: false,
+      timeoutID: null,
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { enabled } = this.props;
+
+    if (enabled !== prevProps.enabled) { this._handleEnable(); }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    this.setState(error, errorInfo);
+  }
+
+  componentWillUnmount() {
+    const { timeoutID } = this.state;
+
+    clearTimeout(timeoutID);
+  }
+
+  /**
+   * If prop `timeout` is set (func or number)
+   * prop `onTimeout` will be called at the end of the delay.
+   * However the timeout can be cleared by the _handleEnable callback.
+   *
+   * @private
+   */
+  _handleTimeout = () => {
+    const { onTimeout, timeout } = this.props;
+    const { timeoutID } = this.state;
+
+    const delay = (isFunction(timeout) ? timeout(this.props) : timeout) + 500;
 
     if (delay && !timeoutID) {
-      setTimeoutID(setTimeout(() => onTimeout(props), delay + 500));
+      const nextTimeoutID = setTimeout(() => onTimeout(this.props), delay);
+
+      this.setState({ timeoutID: nextTimeoutID });
     }
+  };
 
-    return () => clearTimeout(timeoutID);
-  }, [onTimeout, props, timeout, timeoutID]);
+  /**
+   *
+   * @private
+   */
+  _handleEnable = () => {
+    const { autoFocus, enabled, onEnable } = this.props;
+    const { timeoutID } = this.state;
 
-  const handleEnable = useCallback(() => {
-    if (ref && ref.current && autoFocus) { ref.current.focus(); }
+    if (this.ref && this.ref.current && autoFocus) { this.ref.current.focus(); }
 
-    if (!timeoutID && enabled) { handleTimeout(); }
+    if (!timeoutID && enabled) { this._handleTimeout(); }
     if (timeoutID && !enabled) { clearTimeout(timeoutID); }
 
-    onEnable(props);
-  }, [autoFocus, timeoutID, enabled, onEnable, props, handleTimeout]);
+    onEnable(this.props);
+  };
 
-  const handleTap = useCallback((e) => {
-    if (enabled && onTap && !readOnly) { onTap(props, e); }
-  }, [enabled, onTap, props, readOnly]);
+  /**
+   *
+   * @private
+   * @param event
+   */
+  _handleTap = (event) => {
+    const { enabled, onTap, readOnly } = this.props;
+    if (enabled && onTap && !readOnly) { onTap(this.props, event); }
+  };
 
-  const handleKeyPress = useCallback((e) => {
-    if (e.key === 'Enter' || e.key === ' ') { handleTap(e); }
-  }, [handleTap]);
+  /**
+   *
+   * @private
+   * @param event
+   */
+  _handleKeyPress = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') { this._handleTap(event); }
+  };
 
-  useEffect(handleEnable, [enabled]);
 
-  return (
-    <Component
-      autoFocus={autoFocus}
-      data-element-number={elementNumber}
-      disabled={!enabled}
-      forwardProps={props}
-      onClick={handleTap}
-      onKeyPress={handleKeyPress}
-      ref={ref}
-      {...omit(['data', 'dispatch', 'history', 'location'], other)}
-    />
-  );
+  /* NAVIGATION METHODS
+    - _identity(): number
+    - _navigate(): Navigation
+    + goBackward(): Navigation
+    + goForward(): Navigation
+    + goTo([predicate=_.identity], [chunk=Array], [fromIndex=0]): Navigation
+    + rewindTo([predicate=_.identity], [chunk=Array], [fromIndex=0]): Navigation
+   */
+
+  _identity = () => this.index;
+
+  /**
+   * Default navigation method
+   * creating and dispatching a Navigation action.
+   * @param type
+   * @param route
+   * @private
+   */
+  _navigate = (type = GO_TO, route) => {
+    const { dataContext, dispatch } = this.props;
+    const action = new Navigation(type, route, dataContext);
+
+    dispatch(action);
+  };
+
+  /**
+   * Create an instance of Route with a certain predicate
+   * and call a GO_TO Navigation action.
+   * @see https://lodash.com/docs/4.17.15#findIndex
+   * @param predicate
+   * @param chunk
+   * @param fromIndex
+   */
+  goTo = (predicate = this._identity, chunk = this.locations, fromIndex) => {
+    const route = new Route(this.index, findIndex(chunk, predicate, fromIndex));
+
+    this._navigate(GO_TO, route);
+  };
+
+  /**
+   * Create an instance of Route with a certain predicate
+   * and call a REWIND_TO Navigation action.
+   * @see https://lodash.com/docs/4.17.15#findLastIndex
+   * @param predicate
+   * @param chunk
+   * @param fromIndex
+   */
+  rewindTo = (predicate = this._identity, chunk = this.locations, fromIndex) => {
+    const route = new Route(this.index, findLastIndex(chunk, predicate, fromIndex));
+
+    this._navigate(REWIND_TO, route);
+  };
+
+  /**
+   * Same as rewindTo, but use this element identity as base location.
+   * Can skip a number of elements.
+   * @param skip
+   */
+  goBackward = (skip = 0) => {
+    this.rewindTo(() => this.index - skip - 1);
+  };
+
+  /**
+   * Same as goTo, but use this element identity as base location.
+   * Can skip a number of elements.
+   * @param skip
+   */
+  goForward = (skip = 0) => {
+    this.goTo(() => this.index + skip + 1);
+  };
+
+
+  render() {
+    const { hasError } = this.state;
+
+    if (hasError) {
+      const { ErrorComponent } = this.props;
+      const { error, errorInfo } = this.state;
+
+      return <ErrorComponent error={error} errorInfo={errorInfo} />;
+    }
+
+    const { _id, autoFocus, children, enabled, label, RootComponent, tabIndex } = this.props;
+
+    return (
+      // This rule is obsolete since the feature is game specific, not web specific
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+      <RootComponent
+        autoFocus={autoFocus}
+        data-id={_id}
+        data-index={this.index}
+        data-label={label}
+        data-disabled={!enabled}
+        onClick={this._handleTap}
+        onKeyPress={this._handleKeyPress}
+        ref={this.ref}
+        tabIndex={tabIndex}
+      >
+        {children}
+      </RootComponent>
+    );
+  }
 }
 
 Element.propTypes = {
+  /**
+   * A unique id given to the Element that can be used for navigation.
+   * @see `label` prop to navigate through a Knot.
+   */
+  _id: PropTypes.string,
   /**
    * If set to false, component will not be focused when being enabled.
    */
   autoFocus: PropTypes.bool,
   /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
+   * A node of several Element components.
    */
-  component: PropTypes.elementType,
+  children: PropTypes.node.isRequired,
   /**
-   * @ignore
+   * A literal Object of things you need for the element.
+   * If an Action is dispatched, the dataContext will be saved to the history.
    */
-  elementNumber: PropTypes.number,
+  dataContext: PropTypes.object,
+  /**
+   * Navigation is handled with a Redux Store.
+   * You probably don't need to passed you're own dispatch
+   * except if you use Element as parent class for YourCustomElement.
+   */
+  dispatch: PropTypes.func,
   /**
    * @ignore
    */
   enabled: PropTypes.bool,
   /**
+   * The component used for the Error node.
+   * Either a string to use a DOM element or a component.
+   */
+  ErrorComponent: PropTypes.elementType,
+  /**
    * @ignore
    */
-  locations: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string])),
+  index: PropTypes.number,
+  /**
+   * An id that can be used to navigate through a Knot.
+   * Contrary to `id`, the `label` prop is Knot scoped.
+   */
+  label: PropTypes.string,
+  /**
+   * @ignore
+   */
+  locations: PropTypes.arrayOf(PropTypes.shape({
+    _id: PropTypes.string,
+    childOf: PropTypes.string, // a Knot _id
+    index: PropTypes.number,
+    label: PropTypes.string,
+  })),
   /**
    * Callback triggered when Element is enabled by the Story.
    */
@@ -124,21 +284,35 @@ Element.propTypes = {
    */
   readOnly: PropTypes.bool,
   /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  RootComponent: PropTypes.elementType,
+  /**
+   * @ignore
+   */
+  tabIndex: PropTypes.number.isRequired,
+  /**
    * The delay *onTimeout* will be waiting before being triggered.
    */
   timeout: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
 };
 
 Element.defaultProps = {
+  _id: undefined,
   autoFocus: false,
-  component: defaultElementComponent,
-  elementNumber: undefined, // via useElements
-  enabled: false, // via useElements
-  locations: [], // via useElements
+  dataContext: {},
+  dispatch: identity,
+  enabled: false,
+  ErrorComponent: () => <p>Something went wrong.</p>,
+  index: undefined,
+  label: undefined,
+  locations: [],
   onEnable: noop,
   onTap: undefined,
   onTimeout: noop,
   readOnly: false,
+  RootComponent: 'div',
   timeout: 0,
 };
 

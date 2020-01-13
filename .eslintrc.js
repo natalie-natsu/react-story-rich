@@ -30,6 +30,7 @@ module.exports = {
     // Airbnb use error
     'no-param-reassign': 'off',
     'no-prototype-builtins': 'off',
+    'no-underscore-dangle': 'off',
     'prefer-arrow-callback': ['error', { allowNamedFunctions: true }],
     'prefer-destructuring': 'off', // Destructuring harm grep potential.
 

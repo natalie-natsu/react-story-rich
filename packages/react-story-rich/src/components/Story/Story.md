@@ -9,7 +9,7 @@ const history = [
   { from: 1, to: 3 },
 ];
 
-  <Story location={location} history={history} scrollToBottom={false} autoFocus={false}>
+  <Story autoFocus={false} autoScroll={false} location={location} history={history}>
     <Element> Hello world !</Element>
     <Element>How are you ?</Element>
     <>
@@ -25,7 +25,7 @@ If someone would like to contribute by pushing an example with react-virtualized
 it will be very appreciated :-)
 
 ````jsx harmony
-import React, { forwardRef } from 'react';
+import React from 'react';
 import Story from '@react-story-rich/core/components/Story';
 import Element from '@react-story-rich/core/components/Element';
 
@@ -40,19 +40,33 @@ import Typography from '@material-ui/core/Typography';
 // import WindowScroller from 'react-virtualized/WindowScroller';
 // import 'react-virtualized/styles.css';
 
-// forwardRef is important otherwise component will not be auto focused (+ throwing a warning)
-const CustomElement = forwardRef(({ children, forwardProps, ...rest }, ref) =>  (
-  <Grid sm={4} item>
-    <Card ref={ref} {...rest}>
-      <CardContent>
-        <Typography variant="body2" color="textSecondary">
-          {children}
-        </Typography>
-      </CardContent>
-    </Card>
-  </Grid>
-));
+class CustomElement extends Element {
+  render() {
+    const { _id, autoFocus, children, enabled, label, tabIndex } = this.props;
 
+    return (
+      <Grid sm={4} item>
+        <Card
+          autoFocus={autoFocus}
+          data-id={_id}
+          data-index={this.index}
+          data-label={label}
+          data-disabled={!enabled}
+          onClick={this._handleTap}
+          onKeyPress={this._handleKeyPress}
+          ref={this.ref}
+          tabIndex={tabIndex}
+        >
+          <CardContent>
+            <Typography variant="body2" color="textSecondary">
+              {children}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+    ) 
+  }
+}
 
 const nbOfEl = 9;
 const location = nbOfEl - 1;
@@ -66,16 +80,15 @@ for (let i = 0; i < nbOfEl; i += 1) {
     <Container>
       <Story
         component={Grid}
-        container
-        spacing={2}
+        componentProps={{ container: true, spacing: 2 }}
         location={location}
         history={history}
-        scrollToBottom={false}
+        autoScroll={false}
         autoFocus={false}
       >
-        <Element component={CustomElement} sm={4} item>Hey</Element>
-        <Element component={CustomElement} sm={4} item>Oh !</Element>
-        <Element component={CustomElement} sm={4} item>Let&#39;s go !</Element>
+        <CustomElement>Hey</CustomElement>
+        <CustomElement>Oh !</CustomElement>
+        <CustomElement>Let&#39;s go !</CustomElement>
      </Story>
    </Container>
   </Layout>

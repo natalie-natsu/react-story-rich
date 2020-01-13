@@ -2,14 +2,17 @@ import React, { Children, cloneElement, isValidElement, useCallback, useEffect, 
 import { isFragment } from 'react-is';
 import PropTypes from 'prop-types';
 
-import omit from '../../helpers/omit';
-
 function flattenChildren(children, maxDepth, depth = 0) {
+  let childOf;
+
   return Children.toArray(children).reduce((acc, node) => {
+    if (node.props._id && depth >= maxDepth) { childOf = node.props._id; }
+
     if (isFragment(node) && depth < maxDepth) {
       acc.push(...flattenChildren(node.props.children, maxDepth, depth + 1));
     } else if (isValidElement(node)) {
       acc.push(cloneElement(node, {
+        childOf,
         key: `${depth}.${node.key}`,
       }));
     }
@@ -35,8 +38,8 @@ function useElements(children, history, location, autoFocus) {
 
     return isValidElement(node) ? cloneElement(node, {
       autoFocus,
-      elementNumber: from,
       enabled: tabIndex >= array.length,
+      index: from,
       key: `story-element-${index}`,
       locations,
       tabIndex,
@@ -51,7 +54,7 @@ function useElements(children, history, location, autoFocus) {
   return [elements, locations];
 }
 
-const toBottom = (ref) => {
+const scrollToBottom = (ref) => {
   if (ref) {
     window.scrollTo({
       top: ref.current.offsetTop + ref.current.offsetHeight,
@@ -73,20 +76,20 @@ function Story(props) {
     autoFocus,
     children,
     component: Component,
+    componentProps,
     history,
     location,
-    scrollToBottom,
-    ...other
+    autoScroll,
   } = props;
 
   const ref = useRef(null);
   const [elements] = useElements(children, history, location, autoFocus);
 
   useEffect(() => {
-    if (scrollToBottom) { toBottom(ref); }
-  }, [history, scrollToBottom]);
+    if (autoScroll) { scrollToBottom(ref); }
+  }, [history, autoScroll]);
 
-  return <Component ref={ref} {...omit(['data', 'dispatch'], other)}>{elements}</Component>;
+  return <Component ref={ref} {...componentProps}>{elements}</Component>;
 }
 
 Story.propTypes = {
@@ -94,6 +97,11 @@ Story.propTypes = {
    * If set to false, elements will not be focused when being enabled.
    */
   autoFocus: PropTypes.bool,
+  /**
+   * If set to true, the body will scroll To Bottom
+   * each time a new Element component is enabled.
+   */
+  autoScroll: PropTypes.bool,
   /**
    * A node of several Element components.
    */
@@ -104,15 +112,18 @@ Story.propTypes = {
    */
   component: PropTypes.elementType,
   /**
+   * The props passed to the component.
+   */
+  componentProps: PropTypes.object,
+  /**
    * A collection of actions from the oldest to the most recent.
    * Is a save on its own and can easy be persisted.
    */
   history: PropTypes.arrayOf(PropTypes.shape({
     /**
      * The context/state when the action is dispatched.
-     * Useful to navigate through history and retrieve context for some point.
      */
-    data: PropTypes.objectOf(PropTypes.any),
+    dataContext: PropTypes.objectOf(PropTypes.any),
     /**
      * The current location.
      */
@@ -123,26 +134,21 @@ Story.propTypes = {
     to: PropTypes.number,
     /**
      * The type of the action that were dispatched.
-     * For now there is only a GO_TO action,
-     * but we can imagine way more action that can be inserted in the history.
+     * GO_TO or REWIND_TO.
      */
     type: PropTypes.string,
   })).isRequired,
   /**
-   * The current location in the all Elements tree.
+   * The current location in the Elements tree.
    */
   location: PropTypes.number.isRequired,
-  /**
-   * If set to true, the body will scroll To Bottom
-   * each time a new Element component is enabled.
-   */
-  scrollToBottom: PropTypes.bool,
 };
 
 Story.defaultProps = {
   autoFocus: true,
+  autoScroll: true,
   component: 'main',
-  scrollToBottom: true,
+  componentProps: {},
 };
 
 export default Story;
