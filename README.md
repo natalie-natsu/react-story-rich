@@ -1,6 +1,10 @@
-## React JS framework for story-rich games.
+<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/logo.png" alt="@react-story-rich logo">
 
-<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/static/react-story-rich.png" alt="RSR logo">
+@react-story-rich is made for people having knowledge in JavaScript and React
+who doesn't want to lean a "proxy" language to make a narrative game.
+If it is not your case, you can find in this doc
+[links to well known libraries or tools](#Links)
+with the same topic.
 
 ## Installation
 ```bash
@@ -10,68 +14,134 @@ yarn add @react-story-rich/core
 ```
 
 ## Usage
-To create a game with RSR, there are three principles you need to know:
+Your story is composed of Core Components:
+ * One `<Story>` component doing the rendering
+ * Multiple `<Element>`components creating the all book
 
-### 1) Only two components
-Your story is compose of a `<Story>` component doing the rendering and multiple `<Element>`
-components that create the all book.
+[See more information about Core Components.](https://wasa42.github.io/react-story-rich/#section-core-components)
 
-### 2) Tree navigation
-* You navigate from `<Element>` to `<Element>` by dispatching actions like `goForward()`.
-* You can use fragments to organize chapters and sequences, but at the end `children` of you story
-are flatten to one big array of `<Element>` components
-* Then the Story give elements a number you can use as an id  `goTo(6)`
-* You can also give unique ids to elements to navigate without knowing the element number.
+* You navigate from `<Element>` to `<Element>` by dispatching actions like `goForward()`
+* You can use Fragments and Knot to organize chapters and sequences
 
-### 3) One source of truth
-RSR can use redux to manage the entire state. To do that, you need to wrap your story with
-the `<Provider>` component.
+[See more information about Navigation.](https://wasa42.github.io/react-story-rich/#element)
 
-Each time you navigate between elements, an history and a location are updated,
-the history being all actions you've done before and the location being the number of the element
-you are currently on.
-
-You can also use the data state to store information like health, skills or inventory.
-
-```jsx harmony static
+## Example
+````jsx harmony
 import React from 'react';
-import { Element, Story, Provider, goForward, goTo } from '@react-story-rich/core';
 
-function MyStory() {
-  const timeout = 1000;
-  let count = 0;
+import { createStore } from 'redux';
+import { connect, Provider } from 'react-redux';
 
-  const onTimeout = ({ dispatch }) => dispatch(goForward());
-  const loop = ({ dispatch, location }) => {
-    count += 1;
-    if (count < 3) { dispatch(goTo(location, 0)); }
-  };
+import { Story, reducers } from '@react-story-rich/core';
+import CustomElementExample from '@react-story-rich/core/components/CustomElementExample';
 
+import Grid from '@material-ui/core/Grid';
+
+const mapStateToProps = (state) => ({
+  history: state.history,
+  location: state.location,
+});
+
+const LYRICS = {
+  Intro: [
+    `Hey,`, `ho,`, `let's go,`,
+    `Hey,`, `ho,`, `let's go,`,
+    `Hey,`, `ho,`, `let's go,`,
+  ],
+  Verse: [
+    `They're formin' in a straight line`,
+    `They're goin' through a tight wind`,
+    `The kids are losin' their minds`,
+    `The Blitzkrieg Bop`,
+    `They're pilin' in the back seat`,
+    `They're generatin' steam heat`,
+    `Pulsatin' to the back beat`,
+    `The Blitzkrieg Bop`,
+  ],
+  Chorus: [
+    `Hey,`, `ho,`, `let's go,`,
+    `Shoot 'em in the back now`,
+    `What they want, I don't know`,
+    `They're all revved up and ready to go`,
+  ],
+};
+
+const handleTimeout = ({ goForward }) => { goForward() };
+const handleTap = ({ goForward }) => { goForward() };
+
+const Intro = () => LYRICS.Intro.map((text, i) => (
+  <CustomElementExample timeout={750} onTimeout={handleTimeout} key={`Intro-${i}`}>
+    {text}
+  </CustomElementExample>
+));
+
+const Verse = () => LYRICS.Verse.map((text, i) => (
+  <CustomElementExample timeout={1500} onTimeout={handleTimeout} key={`Verse-${i}`}>
+    {text}
+  </CustomElementExample>
+));
+
+const Chorus = () => LYRICS.Chorus.map((text, i) => (
+  <CustomElementExample timeout={750} onTimeout={handleTimeout} key={`Chorus-${i}`}>
+    {text}
+  </CustomElementExample>
+));
+
+const OurStory = connect(mapStateToProps)(({ history, location }) => {
   return (
-    <Provider>
-      <Story autoFocus={false} scrollToBottom={false}>
-        <Element timeout={timeout} onTimeout={onTimeout}>Hey</Element>
-        <Element timeout={timeout} onTimeout={onTimeout}>Oh !</Element>
-        <Element onTap={loop}>Let's go !</Element>
-      </Story>
-    </Provider>
+    <Story
+      autoFocus={false}
+      autoScroll={false}
+      component={Grid}
+      componentProps={{ container: true, spacing: 2 }}
+      history={history}
+      location={location}
+    >
+      <CustomElementExample onTap={handleTap}>
+        Imagine you found the box of your old video games.
+      </CustomElementExample>
+      <CustomElementExample onTap={handleTap}>
+        At the very bottom, you see the Tony Hawk PS1 game.
+      </CustomElementExample>
+      <CustomElementExample onTap={handleTap}>
+        You remember having fun with your friends on it,
+        so you bring back to life your old console.
+      </CustomElementExample>
+      <CustomElementExample onTap={handleTap}>
+        You remember those good old punk rock music when suddenly
+        you hear the saturated sound of guitars.
+      </CustomElementExample>
+      <>
+        {Intro()}
+        {Verse()}
+        {Chorus()}
+      </>
+      <CustomElementExample onTap={handleTap}>
+        It was a good memory to remember
+      </CustomElementExample>
+      <CustomElementExample readOnly>
+        Hop it was a good memory to share
+      </CustomElementExample>
+    </Story>
   );
-}
-```
-### [See the full documentation here.](https://wasa42.github.io/react-story-rich)
+});
 
-## TODOs and appreciated improvements
-* More examples in the documentation
-  * Audio
-  * Theme customization
-  * Routing
-  * Persistence
-  * Translations
-  * Virtualized Story
-  * Deployment on GH Pages/Web, Mobile and OSs
-* Accessibility
-* XBox controller integration (is that possible ?)
-* Issue templates
-* Tools for editing and debugging Elements
-* Obviously tests (sorry for not implementing them sooner 🤷)
-* Add a CI/CD
+const store = createStore(reducers);
+
+const App = () => (
+  <Provider store={store}>
+    <OurStory />
+  </Provider>
+);
+
+  <App />
+````
+
+## Links
+* A non existing link about @react-story-rich
+
+### About alternative to @react-story-rich
+* [Ink language](https://github.com/inkle/ink)
+* [Twine tool](https://twinery.org/)
+* [Tutorial to combine Ink with React](https://medium.com/journocoders/create-a-news-game-with-ink-react-and-redux-part-i-scripting-in-inky-fba5f681601c)
+* [Myself knowing no one is going to read this](https://i.kym-cdn.com/entries/icons/original/000/026/489/crying.jpg)

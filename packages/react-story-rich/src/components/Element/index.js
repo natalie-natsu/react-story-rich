@@ -1,6 +1,3 @@
-/* eslint-disable no-underscore-dangle, react/jsx-handler-names */
-// react/jsx-handler-names doesn't work with dangles for private methods
-
 import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 
@@ -10,25 +7,23 @@ import identity from 'lodash/identity';
 import isFunction from 'lodash/isFunction';
 import noop from 'lodash/noop';
 
-import Navigation, { GO_TO, REWIND_TO } from '../Navigation';
-import Route from '../Route';
+import Navigation, { GO_TO, REWIND_TO } from '../../classes/Navigation';
+import Route from '../../classes/Route';
 
 /* Predicates for navigation actions */
-export const findByById = (_id) => ['_id', _id];
-export const findByByIndex = (index) => ['index', index];
+export const findById = (_id) => ['_id', _id];
+export const findByIndex = (index) => ['index', index];
 export const findByLabel = (label, childOf) => ({ label, childOf });
 
-/**
- * `import Element from '@react-story-rich/core/components/Element';`
- * `class MyCustomElement extends Element { ...`
- */
 class Element extends Component {
   constructor(props) {
     super(props);
 
     this.ref = createRef();
-    this.index = props.index; // index is passed via props but will never change
-    this.locations = props.locations; // same here
+    this.index = props.index;
+    this.chunk = props.chunk;
+    this.locations = props.locations;
+    this.findIndexArray = this.chunk || this.locations;
 
     this.state = {
       error: null,
@@ -38,10 +33,20 @@ class Element extends Component {
     };
   }
 
-  componentDidUpdate(prevProps) {
-    const { enabled } = this.props;
+  componentDidMount() {
+    this.handleEnable();
+  }
 
-    if (enabled !== prevProps.enabled) { this._handleEnable(); }
+  componentDidUpdate(prevProps, prevState) {
+    const { enabled } = this.props;
+    if (enabled !== prevProps.enabled) {
+      this.handleEnable();
+    }
+
+    const { timeoutID } = this.state;
+    if (timeoutID !== prevState.timeoutID && prevState.timeoutID !== null) {
+      clearTimeout(prevState.timeoutID);
+    }
   }
 
   componentDidCatch(error, errorInfo) {
@@ -50,25 +55,28 @@ class Element extends Component {
 
   componentWillUnmount() {
     const { timeoutID } = this.state;
-
-    clearTimeout(timeoutID);
+    if (timeoutID) { clearTimeout(timeoutID); }
   }
 
   /**
    * If prop `timeout` is set (func or number)
    * prop `onTimeout` will be called at the end of the delay.
-   * However the timeout can be cleared by the _handleEnable callback.
+   * However the timeout can be cleared by the handleEnable callback.
    *
    * @private
    */
-  _handleTimeout = () => {
+  handleTimeout = () => {
     const { onTimeout, timeout } = this.props;
     const { timeoutID } = this.state;
 
     const delay = (isFunction(timeout) ? timeout(this.props) : timeout) + 500;
 
     if (delay && !timeoutID) {
-      const nextTimeoutID = setTimeout(() => onTimeout(this.props), delay);
+      const navigation = this._getNavigation();
+      const nextTimeoutID = setTimeout(() => {
+        onTimeout(navigation, this.props);
+        this.setState({ timeoutID: null });
+      }, delay);
 
       this.setState({ timeoutID: nextTimeoutID });
     }
@@ -78,14 +86,17 @@ class Element extends Component {
    *
    * @private
    */
-  _handleEnable = () => {
+  handleEnable = () => {
     const { autoFocus, enabled, onEnable } = this.props;
     const { timeoutID } = this.state;
 
     if (this.ref && this.ref.current && autoFocus) { this.ref.current.focus(); }
 
-    if (!timeoutID && enabled) { this._handleTimeout(); }
-    if (timeoutID && !enabled) { clearTimeout(timeoutID); }
+    if (!timeoutID && enabled) { this.handleTimeout(); }
+    if (timeoutID && !enabled) {
+      clearTimeout(timeoutID);
+      this.setState({ timeoutID: null });
+    }
 
     onEnable(this.props);
   };
@@ -95,9 +106,12 @@ class Element extends Component {
    * @private
    * @param event
    */
-  _handleTap = (event) => {
+  handleTap = (event) => {
     const { enabled, onTap, readOnly } = this.props;
-    if (enabled && onTap && !readOnly) { onTap(this.props, event); }
+    if (enabled && onTap && !readOnly) {
+      const navigation = this._getNavigation();
+      onTap(navigation, this.props, event);
+    }
   };
 
   /**
@@ -105,8 +119,8 @@ class Element extends Component {
    * @private
    * @param event
    */
-  _handleKeyPress = (event) => {
-    if (event.key === 'Enter' || event.key === ' ') { this._handleTap(event); }
+  handleKeyPress = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') { this.handleTap(event); }
   };
 
 
@@ -130,9 +144,9 @@ class Element extends Component {
    */
   _navigate = (type = GO_TO, route) => {
     const { dataContext, dispatch } = this.props;
-    const action = new Navigation(type, route, dataContext);
+    const navigationAction = new Navigation(type, route, dataContext);
 
-    dispatch(action);
+    dispatch(navigationAction.toPlainObject());
   };
 
   /**
@@ -143,9 +157,8 @@ class Element extends Component {
    * @param chunk
    * @param fromIndex
    */
-  goTo = (predicate = this._identity, chunk = this.locations, fromIndex) => {
+  goTo = (predicate = this._identity, chunk = this.findIndexArray, fromIndex) => {
     const route = new Route(this.index, findIndex(chunk, predicate, fromIndex));
-
     this._navigate(GO_TO, route);
   };
 
@@ -157,9 +170,8 @@ class Element extends Component {
    * @param chunk
    * @param fromIndex
    */
-  rewindTo = (predicate = this._identity, chunk = this.locations, fromIndex) => {
+  rewindTo = (predicate = this._identity, chunk = this.findIndexArray, fromIndex) => {
     const route = new Route(this.index, findLastIndex(chunk, predicate, fromIndex));
-
     this._navigate(REWIND_TO, route);
   };
 
@@ -169,7 +181,8 @@ class Element extends Component {
    * @param skip
    */
   goBackward = (skip = 0) => {
-    this.rewindTo(() => this.index - skip - 1);
+    const route = new Route(this.index, this.index - skip - 1);
+    this._navigate(REWIND_TO, route);
   };
 
   /**
@@ -178,8 +191,28 @@ class Element extends Component {
    * @param skip
    */
   goForward = (skip = 0) => {
-    this.goTo(() => this.index + skip + 1);
+    const route = new Route(this.index, this.index + skip + 1);
+    this._navigate(GO_TO, route);
   };
+
+  /* Getters and setters */
+
+  /**
+   *
+   * @return {{
+   *   rewindTo: Element.rewindTo,
+   *   goTo: Element.goTo,
+   *   goBackward: Element.goBackward,
+   *   goForward: Element.goForward,
+   * }}
+   * @private
+   */
+  _getNavigation = () => ({
+    goTo: this.goTo,
+    rewindTo: this.rewindTo,
+    goBackward: this.goBackward,
+    goForward: this.goForward,
+  });
 
 
   render() {
@@ -203,8 +236,8 @@ class Element extends Component {
         data-index={this.index}
         data-label={label}
         data-disabled={!enabled}
-        onClick={this._handleTap}
-        onKeyPress={this._handleKeyPress}
+        onClick={this.handleTap}
+        onKeyPress={this.handleKeyPress}
         ref={this.ref}
         tabIndex={tabIndex}
       >
@@ -228,6 +261,19 @@ Element.propTypes = {
    * A node of several Element components.
    */
   children: PropTypes.node.isRequired,
+  /**
+   * Chunk of locations to reduce the cost of navigation in big story trees.
+   * For example, if you know all possible next locations to this element
+   * you can use that collection to improve the search.
+   *
+   * Of course prefer goForward(skip) navigation action for the best performance.
+   */
+  chunk: PropTypes.arrayOf(PropTypes.shape({
+    _id: PropTypes.string,
+    childOf: PropTypes.string, // a Knot _id
+    index: PropTypes.number,
+    label: PropTypes.string,
+  })),
   /**
    * A literal Object of things you need for the element.
    * If an Action is dispatched, the dataContext will be saved to the history.
@@ -291,7 +337,7 @@ Element.propTypes = {
   /**
    * @ignore
    */
-  tabIndex: PropTypes.number.isRequired,
+  tabIndex: PropTypes.number,
   /**
    * The delay *onTimeout* will be waiting before being triggered.
    */
@@ -301,6 +347,7 @@ Element.propTypes = {
 Element.defaultProps = {
   _id: undefined,
   autoFocus: false,
+  chunk: undefined,
   dataContext: {},
   dispatch: identity,
   enabled: false,
@@ -313,6 +360,7 @@ Element.defaultProps = {
   onTimeout: noop,
   readOnly: false,
   RootComponent: 'div',
+  tabIndex: undefined,
   timeout: 0,
 };
 

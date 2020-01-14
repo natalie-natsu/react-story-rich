@@ -21,6 +21,13 @@ const commonjsOptions = {
   ignoreGlobal: true,
   include: /node_modules/,
   namedExports: {
+    '../../node_modules/lodash/index.js': [
+      'findIndex',
+      'findLastIndex',
+      'identity',
+      'isFunction',
+      'noop',
+    ],
     '../../node_modules/prop-types/index.js': [
       'arrayOf',
       'bool',
@@ -47,9 +54,6 @@ const commonjsOptions = {
       'combineReducers',
       'compose',
       'createStore',
-    ],
-    '../../node_modules/redux-thunk/index.js': [
-      'thunk',
     ],
   },
 };

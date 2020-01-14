@@ -28,18 +28,18 @@ function useElements(children, history, location, autoFocus) {
   const flatChildren = useMemo(() => toFlatArray(children), [children]);
 
   const locations = useMemo(
-    () => flatChildren.map(({ props }, from) => props.name || from),
+    () => flatChildren.map(({ _id, label }, index) => ({ _id, index, label })),
     [flatChildren],
   );
 
-  const clone = useCallback(({ from }, index, array) => {
+  const clone = useCallback(({ route }, index, array) => {
     const tabIndex = 1 + index;
-    const node = flatChildren[from];
+    const node = flatChildren[route.to];
 
     return isValidElement(node) ? cloneElement(node, {
       autoFocus,
       enabled: tabIndex >= array.length,
-      index: from,
+      index: route.to,
       key: `story-element-${index}`,
       locations,
       tabIndex,
@@ -47,8 +47,8 @@ function useElements(children, history, location, autoFocus) {
   }, [autoFocus, flatChildren, locations]);
 
   const elements = useMemo(
-    () => history.concat({ from: location }).map(clone),
-    [clone, history, location],
+    () => history.map(clone),
+    [clone, history],
   );
 
   return [elements, locations];
@@ -63,14 +63,6 @@ const scrollToBottom = (ref) => {
   }
 };
 
-/**
- * Render its own children Elements according to the history prop.
- *
- * `import Story from '@react-story-rich/core/components/Story';`
- * @param props
- * @return {*}
- * @constructor
- */
 function Story(props) {
   const {
     autoFocus,
@@ -125,13 +117,18 @@ Story.propTypes = {
      */
     dataContext: PropTypes.objectOf(PropTypes.any),
     /**
-     * The current location.
+     * A location to another
      */
-    from: PropTypes.number,
-    /**
-     * The location to be next.
-     */
-    to: PropTypes.number,
+    route: PropTypes.shape({
+      /**
+       * The current location.
+       */
+      from: PropTypes.number,
+      /**
+       * The location to be next.
+       */
+      to: PropTypes.number,
+    }),
     /**
      * The type of the action that were dispatched.
      * GO_TO or REWIND_TO.

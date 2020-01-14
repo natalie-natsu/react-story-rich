@@ -21,6 +21,9 @@ const commonjsOptions = {
   ignoreGlobal: true,
   include: /node_modules/,
   namedExports: {
+    '../../node_modules/lodash/index.js': [
+      'isFunction',
+    ],
     '../../node_modules/prop-types/index.js': [
       'any',
       'arrayOf',

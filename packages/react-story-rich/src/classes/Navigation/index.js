@@ -1,4 +1,4 @@
-import Route from './Route';
+import Route from '../Route';
 
 export const GO_TO = '@react-story-rich.GO_TO';
 export const REWIND_TO = '@react-story-rich.REWIND_TO';
@@ -18,9 +18,15 @@ class Navigation {
     }
 
     this.type = type;
-    this.route = route.toObject();
+    this.route = route;
     this.dataContext = dataContext;
   }
+
+  toPlainObject = () => ({
+    dataContext: this.dataContext,
+    route: this.route.toPlainObject(),
+    type: this.type,
+  })
 }
 
 export default Navigation;
