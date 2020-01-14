@@ -11,10 +11,6 @@ import Actions from './Actions';
 import LinearDeterminate from './LinearDeterminate';
 
 /**
- * `import CardElement from '@react-story-rich/ui/CardElement';`
- *
- * Use Material UI card component to display a beautiful Element adapted to react-story-rich usage.
- *
  * See https://wasa42.github.io/react-story-rich/#element for demo and example.
  */
 class CardElement extends Element {

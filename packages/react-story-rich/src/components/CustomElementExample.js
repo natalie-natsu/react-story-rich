@@ -12,10 +12,10 @@ import { Element } from '@react-story-rich/core';
 
 class CustomElement extends Element {
   render() {
-    const { _id, autoFocus, children, enabled, label, tabIndex } = this.props;
+    const { _id, autoFocus, children, enabled, gridProps, label, tabIndex } = this.props;
 
     return (
-      <Grid sm={4} item>
+      <Grid sm={4} item {...gridProps}>
         <Card
           autoFocus={autoFocus}
           data-id={_id}
@@ -29,7 +29,7 @@ class CustomElement extends Element {
         >
           <CardActionArea disabled={!enabled}>
             <CardContent>
-              <Typography variant="body2" color="textSecondary">
+              <Typography align="center">
                 {children}
               </Typography>
             </CardContent>
@@ -41,7 +41,15 @@ class CustomElement extends Element {
 }
 
 CustomElement.propTypes = {
+  _id: PropTypes.number,
   children: PropTypes.node.isRequired,
+  gridProps: PropTypes.object,
+  label: PropTypes.string,
+};
+
+CustomElement.defaultProps = {
+  ...Element.defaultProps,
+  gridProps: {},
 };
 
 const mapStateToProps = (state) => ({

@@ -1,4 +1,5 @@
 export { default as reducers } from './reducers';
+export { default as mapStateToProps } from './reducers/mapStateToProps';
 
 export { default as history } from './reducers/history';
 export * from './reducers/history';

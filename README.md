@@ -26,13 +26,21 @@ Your story is composed of Core Components:
 [See more information about Navigation.](https://wasa42.github.io/react-story-rich/#element)
 
 ## Example
+Here a non exhaustive example of a mini scene.
+It involves connecting a Story to a store and use CustomElement components
+either provided by composition or inheritance.
+
 ````jsx harmony
 import React from 'react';
 
-import { createStore } from 'redux';
+import { createStore, compose, applyMiddleware } from 'redux';
 import { connect, Provider } from 'react-redux';
 
-import { Story, reducers } from '@react-story-rich/core';
+import logger from 'redux-logger';
+import thunk from 'redux-thunk';
+
+import Break from '@react-story-rich/ui/Break';
+import { Element, Story, reducers } from '@react-story-rich/core';
 import CustomElementExample from '@react-story-rich/core/components/CustomElementExample';
 
 import Grid from '@material-ui/core/Grid';
@@ -44,9 +52,9 @@ const mapStateToProps = (state) => ({
 
 const LYRICS = {
   Intro: [
-    `Hey,`, `ho,`, `let's go,`,
-    `Hey,`, `ho,`, `let's go,`,
-    `Hey,`, `ho,`, `let's go,`,
+    `Hey, ho, let's go !`,
+    `Hey, ho, let's go !`,
+    `Hey, ho, let's go !`,
   ],
   Verse: [
     `They're formin' in a straight line`,
@@ -59,35 +67,23 @@ const LYRICS = {
     `The Blitzkrieg Bop`,
   ],
   Chorus: [
-    `Hey,`, `ho,`, `let's go,`,
+    `Hey, ho, let's go !`,
     `Shoot 'em in the back now`,
     `What they want, I don't know`,
-    `They're all revved up and ready to go`,
+    `They're all revved up ready to go`,
   ],
 };
 
 const handleTimeout = ({ goForward }) => { goForward() };
 const handleTap = ({ goForward }) => { goForward() };
 
-const Intro = () => LYRICS.Intro.map((text, i) => (
-  <CustomElementExample timeout={750} onTimeout={handleTimeout} key={`Intro-${i}`}>
+const Lyrics = () => [...LYRICS.Intro, ...LYRICS.Verse, ...LYRICS.Chorus].map((text, i) => (
+  <CustomElementExample timeout={1500} onTimeout={handleTimeout} key={`LYRICS-${i}`}>
     {text}
   </CustomElementExample>
 ));
 
-const Verse = () => LYRICS.Verse.map((text, i) => (
-  <CustomElementExample timeout={1500} onTimeout={handleTimeout} key={`Verse-${i}`}>
-    {text}
-  </CustomElementExample>
-));
-
-const Chorus = () => LYRICS.Chorus.map((text, i) => (
-  <CustomElementExample timeout={750} onTimeout={handleTimeout} key={`Chorus-${i}`}>
-    {text}
-  </CustomElementExample>
-));
-
-const OurStory = connect(mapStateToProps)(({ history, location }) => {
+const OurStory = connect(mapStateToProps)(({ history, location, dispatch }) => {
   return (
     <Story
       autoFocus={false}
@@ -98,7 +94,7 @@ const OurStory = connect(mapStateToProps)(({ history, location }) => {
       location={location}
     >
       <CustomElementExample onTap={handleTap}>
-        Imagine you found the box of your old video games.
+        Imagine you found a box of your old video games.
       </CustomElementExample>
       <CustomElementExample onTap={handleTap}>
         At the very bottom, you see the Tony Hawk PS1 game.
@@ -107,26 +103,35 @@ const OurStory = connect(mapStateToProps)(({ history, location }) => {
         You remember having fun with your friends on it,
         so you bring back to life your old console.
       </CustomElementExample>
-      <CustomElementExample onTap={handleTap}>
+      <CustomElementExample onTap={handleTap} gridProps={{ sm: 12 }}>
         You remember those good old punk rock music when suddenly
         you hear the saturated sound of guitars.
       </CustomElementExample>
-      <>
-        {Intro()}
-        {Verse()}
-        {Chorus()}
-      </>
-      <CustomElementExample onTap={handleTap}>
-        It was a good memory to remember
+      <Element
+        boxProps={{ component: Grid, item: true, xs: 12}}
+        component={Break}
+        divider={false}
+        dispatch={dispatch}
+      />
+      {Lyrics()}
+      <Element
+        boxProps={{ component: Grid, item: true, xs: 12}}
+        component={Break}
+        divider={false}
+        dispatch={dispatch}
+      />
+      <CustomElementExample onTap={handleTap} gridProps={{ sm: 6 }}>
+        It was a good memory to remember.
       </CustomElementExample>
-      <CustomElementExample readOnly>
-        Hop it was a good memory to share
+      <CustomElementExample readOnly gridProps={{ sm: 6 }}>
+        Hope it was a good one to share.
       </CustomElementExample>
     </Story>
   );
 });
 
-const store = createStore(reducers);
+const middleWares = [thunk, logger];
+const store = createStore(reducers, compose(applyMiddleware(...middleWares)));
 
 const App = () => (
   <Provider store={store}>
@@ -138,9 +143,10 @@ const App = () => (
 ````
 
 ## Links
+* [So What About Inheritance? issue](https://github.com/WaSa42/react-story-rich/issues/5)
 * A non existing link about @react-story-rich
 
-### About alternative to @react-story-rich
+### About alternative or non relative to @react-story-rich
 * [Ink language](https://github.com/inkle/ink)
 * [Twine tool](https://twinery.org/)
 * [Tutorial to combine Ink with React](https://medium.com/journocoders/create-a-news-game-with-ink-react-and-redux-part-i-scripting-in-inky-fba5f681601c)

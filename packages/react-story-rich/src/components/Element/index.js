@@ -5,6 +5,7 @@ import findIndex from 'lodash/findIndex';
 import findLastIndex from 'lodash/findLastIndex';
 import identity from 'lodash/identity';
 import isFunction from 'lodash/isFunction';
+import omit from 'lodash/omit';
 import noop from 'lodash/noop';
 
 import Navigation, { GO_TO, REWIND_TO } from '../../classes/Navigation';
@@ -225,7 +226,26 @@ class Element extends Component {
       return <ErrorComponent error={error} errorInfo={errorInfo} />;
     }
 
-    const { _id, autoFocus, children, enabled, label, RootComponent, tabIndex } = this.props;
+    const {
+      _id,
+      autoFocus,
+      children,
+      component,
+      enabled,
+      forwardProps,
+      label,
+      tabIndex,
+    } = this.props;
+
+    const composition = component !== undefined;
+    // Not setting a default prop here because
+    // we want to no if component was initially undefined or not
+    // in order to forwardProps or not.
+    const RootComponent = composition ? component : 'div';
+    const propsToForward = composition ? forwardProps({
+      ...this.props,
+      navigation: this._getNavigation(),
+    }) : {};
 
     return (
       // This rule is obsolete since the feature is game specific, not web specific
@@ -240,6 +260,7 @@ class Element extends Component {
         onKeyPress={this.handleKeyPress}
         ref={this.ref}
         tabIndex={tabIndex}
+        {...propsToForward}
       >
         {children}
       </RootComponent>
@@ -260,7 +281,7 @@ Element.propTypes = {
   /**
    * A node of several Element components.
    */
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
   /**
    * Chunk of locations to reduce the cost of navigation in big story trees.
    * For example, if you know all possible next locations to this element
@@ -274,6 +295,11 @@ Element.propTypes = {
     index: PropTypes.number,
     label: PropTypes.string,
   })),
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: PropTypes.elementType,
   /**
    * A literal Object of things you need for the element.
    * If an Action is dispatched, the dataContext will be saved to the history.
@@ -294,6 +320,12 @@ Element.propTypes = {
    * Either a string to use a DOM element or a component.
    */
   ErrorComponent: PropTypes.elementType,
+  /**
+   * A filtering func for forwarding props if you use
+   * composition over inheritance.
+   * https://github.com/WaSa42/react-story-rich/issues/5
+   */
+  forwardProps: PropTypes.func,
   /**
    * @ignore
    */
@@ -330,11 +362,6 @@ Element.propTypes = {
    */
   readOnly: PropTypes.bool,
   /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  RootComponent: PropTypes.elementType,
-  /**
    * @ignore
    */
   tabIndex: PropTypes.number,
@@ -347,11 +374,14 @@ Element.propTypes = {
 Element.defaultProps = {
   _id: undefined,
   autoFocus: false,
+  children: null,
   chunk: undefined,
+  component: undefined,
   dataContext: {},
   dispatch: identity,
   enabled: false,
   ErrorComponent: () => <p>Something went wrong.</p>,
+  forwardProps: (props) => omit(props, ['component']),
   index: undefined,
   label: undefined,
   locations: [],
@@ -359,7 +389,6 @@ Element.defaultProps = {
   onTap: undefined,
   onTimeout: noop,
   readOnly: false,
-  RootComponent: 'div',
   tabIndex: undefined,
   timeout: 0,
 };
