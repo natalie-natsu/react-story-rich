@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 
 import isEmpty from 'lodash/isEmpty';
 
+import { toElement } from '@react-story-rich/core';
+
 import Box from '@material-ui/core/Box';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
@@ -91,4 +93,4 @@ Break.defaultProps = {
   titleProps: {},
 };
 
-export default Break;
+export default toElement()(Break);

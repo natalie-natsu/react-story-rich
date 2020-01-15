@@ -1,19 +1,19 @@
-import React, { Children, cloneElement, isValidElement, useCallback, useEffect, useMemo, useRef } from 'react';
-import { isFragment } from 'react-is';
+import React, { Children, cloneElement, isValidElement, useEffect, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 
+import { isFragment } from 'react-is';
+import uniqueId from 'lodash/uniqueId';
+
+import Navigation from './classes/Navigation';
+
 function flattenChildren(children, maxDepth, depth = 0) {
-  let childOf;
-
   return Children.toArray(children).reduce((acc, node) => {
-    if (node.props._id && depth >= maxDepth) { childOf = node.props._id; }
-
     if (isFragment(node) && depth < maxDepth) {
       acc.push(...flattenChildren(node.props.children, maxDepth, depth + 1));
     } else if (isValidElement(node)) {
       acc.push(cloneElement(node, {
-        childOf,
-        key: `${depth}.${node.key}`,
+        index: acc.length,
+        key: uniqueId('react-story-rich-Element_'),
       }));
     }
     return acc;
@@ -24,34 +24,27 @@ export function toFlatArray(children, maxDepth = Infinity) {
   return flattenChildren(children, maxDepth);
 }
 
-function useElements(children, history, location, autoFocus) {
+function useElements(children, history, dispatch) {
+  // Building flat map tree of Elements for establishing uniq locations
   const flatChildren = useMemo(() => toFlatArray(children), [children]);
 
-  const locations = useMemo(
-    () => flatChildren.map(({ _id, label }, index) => ({ _id, index, label })),
-    [flatChildren],
-  );
+  // Creating the locations map by picking only identity props
+  const locations = useMemo(() => flatChildren.map(({ _id, key, label }, index) => ({
+    _id,
+    index,
+    key,
+    label,
+  })), [flatChildren]);
 
-  const clone = useCallback(({ route }, index, array) => {
-    const tabIndex = 1 + index;
-    const node = flatChildren[route.to];
+  const location = useMemo(() => history[history.length - 1].to, [history]);
+  const elements = useMemo(() => history.map(({ to: i }) => (cloneElement(elements[i], {
+    enabled: location === i,
+    navigation: new Navigation(i, dispatch, locations),
+    tabIndex: i + 1,
+  }))), [dispatch, history, location, locations]);
 
-    return isValidElement(node) ? cloneElement(node, {
-      autoFocus,
-      enabled: tabIndex >= array.length,
-      index: route.to,
-      key: `story-element-${index}`,
-      locations,
-      tabIndex,
-    }) : null;
-  }, [autoFocus, flatChildren, locations]);
 
-  const elements = useMemo(
-    () => history.map(clone),
-    [clone, history],
-  );
-
-  return [elements, locations];
+  return [locations, flatChildren];
 }
 
 const scrollToBottom = (ref) => {
@@ -66,12 +59,12 @@ const scrollToBottom = (ref) => {
 function Story(props) {
   const {
     autoFocus,
+    autoScroll,
     children,
     component: Component,
     componentProps,
     history,
     location,
-    autoScroll,
   } = props;
 
   const ref = useRef(null);
