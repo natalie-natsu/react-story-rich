@@ -4,9 +4,8 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 const INTERVAL = 200;
 const COMPLETED = 100;
 
-const useProgress = (injectedProps, extraProps, interval = INTERVAL) => {
-  const { enabled } = injectedProps;
-  const { onTimeout, timeout } = extraProps;
+const useProgress = (onTimeout, timeout, { enabled, nav }, hasActions, interval = INTERVAL) => {
+  const hasProgress = useMemo(() => hasActions && timeout, [hasActions, timeout]);
 
   const [completed, setCompleted] = useState(enabled ? 0 : COMPLETED);
   const [timer, setTimer] = useState(null);
@@ -25,7 +24,7 @@ const useProgress = (injectedProps, extraProps, interval = INTERVAL) => {
       setTimer(null);
 
       if (completed === COMPLETED && onTimeout) {
-        onTimeout(injectedProps, extraProps);
+        onTimeout(nav);
       }
 
       return clearInterval(timer);
@@ -37,14 +36,14 @@ const useProgress = (injectedProps, extraProps, interval = INTERVAL) => {
     }
 
     return () => { clearInterval(timer); };
-  }, [completed, enabled, extraProps, injectedProps, onTimeout, progress, timer]);
+  }, [completed, enabled, nav, onTimeout, progress, timer]);
 
   const Progress = useMemo(
     () => <LinearProgress variant="determinate" value={completed} />,
     [completed],
   );
 
-  return [Progress, completed, timer];
+  return [hasProgress, Progress, completed, timer];
 };
 
 export default useProgress;

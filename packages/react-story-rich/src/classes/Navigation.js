@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 import findIndex from 'lodash/findIndex';
 import findLastIndex from 'lodash/findLastIndex';
 import identity from 'lodash/identity';
@@ -76,26 +77,38 @@ class Navigation {
 
   /* GETTERS & SETTERS
     + getRoute(): Route
-    + setRoute(route: Route): Route
+    + setRoute(route: Route): Navigation
 
     + getDispatch(): function
-    + setDispatch(dispatch: string): function
+    + setDispatch(dispatch: string): Navigation
 
     + getChunk(): Array
-    + setChunk(chunk: Array): Array
+    + setChunk(chunk: Array): Navigation
   */
 
   getFrom = () => this.route;
 
-  setFrom = (from) => Navigation.isFromValid(from);
+  setFrom = (from) => {
+    this.from === Navigation.isFromValid(from);
+
+    return this;
+  };
 
   getDispatch = () => this.dispatch;
 
-  setDispatch = (dispatch) => Navigation.isDispatchValid(dispatch);
+  setDispatch = (dispatch) => {
+    this.dispatch === Navigation.isDispatchValid(dispatch);
+
+    return this;
+  };
 
   getChunk = () => this.chunk;
 
-  setChunk = (chunk) => Navigation.isDispatchValid(chunk);
+  setChunk = (chunk) => {
+    this.chunk === Navigation.isChunkValid(chunk);
+
+    return this;
+  };
 
 
   /* NAVIGATION METHODS
@@ -106,7 +119,7 @@ class Navigation {
     + rewindTo([predicate=_.identity], [chunk=Array], [fromIndex=0])
    */
 
-  _apply = (route, dispatch = this.dispatch) => {
+  _apply = (route, dispatch = this.getDispatch()) => {
     navigate(Navigation.isRouteValid(route), Navigation.isDispatchValid(dispatch));
   };
 
@@ -136,7 +149,7 @@ class Navigation {
    * @param from
    * @param skip
    */
-  goBackward = (from = this.getFrom().from, skip = 0) => {
+  goBackward = (from = this.from, skip = 0) => {
     this._apply(new Route(from, from - skip - 1, REWIND_TO));
   };
 
@@ -144,7 +157,7 @@ class Navigation {
    * @param from
    * @param skip
    */
-  goForward = (from = this.getFrom(), skip = 0) => {
+  goForward = (from = this.from, skip = 0) => {
     this._apply(new Route(from, from + skip + 1));
   };
 }

@@ -11,23 +11,9 @@ module.exports = {
     exampleMode: 'expand', // 'hide' | 'collapse' | 'expand'
   }, {
     name: 'Core Components',
-    components: 'packages/react-story-rich/src/+([A-Z]*)/*.js',
+    components: 'packages/react-story-rich/src/components/+([A-Z]*)/*.js',
     exampleMode: 'expand', // 'hide' | 'collapse' | 'expand'
     usageMode: 'expand', // 'hide' | 'collapse' | 'expand',
-  }, {
-    name: 'Core Classes',
-    exampleMode: 'expand', // 'hide' | 'collapse' | 'expand'
-    usageMode: 'expand', // 'hide' | 'collapse' | 'expand'
-    sections: [{
-      name: 'Route',
-      content: 'packages/react-story-rich/documentation/Route.md',
-    }, {
-      name: 'Navigation',
-      content: 'packages/react-story-rich/documentation/Navigation.md',
-    }, {
-      name: 'Knot',
-      content: 'packages/react-story-rich/documentation/Knot.md',
-    }],
   }, {
     name: 'Styled Components',
     content: 'packages/react-story-rich-ui/README.md',

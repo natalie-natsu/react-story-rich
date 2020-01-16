@@ -31,7 +31,7 @@ It involves connecting a Story to a store and use CustomElement components
 either provided by composition or inheritance.
 
 ````jsx harmony
-import React from 'react';
+import React ,{useMemo}from 'react';
 
 import { createStore, compose, applyMiddleware } from 'redux';
 import { connect, Provider } from 'react-redux';
@@ -39,48 +39,34 @@ import { connect, Provider } from 'react-redux';
 import logger from 'redux-logger';
 import thunk from 'redux-thunk';
 
-import noop from 'lodash/noop';
+import Story from '@react-story-rich/core/components/Story';
+import reducers from '@react-story-rich/core/reducers';
+import mapStateToProps from '@react-story-rich/core/reducers/mapStateToProps';
 
-import { Story, reducers } from '@react-story-rich/core';
 import CardElement from '@react-story-rich/ui/CardElement';
 
-import Grid from '@material-ui/core/Grid';
-
-
-const mapStateToProps = (state) => ({
-  history: state.history,
-  location: state.location,
-});
-
 const OurStory = connect(mapStateToProps)(({ history, location, dispatch }) => {
+  const actions = useMemo(() => [
+    { children: 'Bow to say hi', onClick: (nav) => nav.goForward() },
+    { children: 'Kill it', onClick: (nav) => nav.goForward() },
+  ]);
+
   return (
     <Story
       autoFocus={false}
       autoScroll={false}
-      component={Grid}
-      componentProps={{ container: true, spacing: 2 }}
       dispatch={dispatch}
       history={history}
       location={location}
     >
-      <CardElement
-        actions={[{
-          children: 'Bow to say hi',
-          onClick: noop,
-        }, {
-          children: 'Kill it',
-          onClick: noop,
-        },]}
-        enabled={enabled}
-        text
-      >
-        {enabled && `A magnificent blue lobster appears, like the Apollo of the Oceans.
+      <CardElement actions={actions} text>
+        A magnificent blue lobster appears, like the Apollo of the Oceans.
         His whiskers wiggle and his pliers snap frantically.
         Your stomach is empty. What do you want to do ?
-        `}
-        {!enabled && `You hardly have time to move as its magnificence disappears under your eyes !
+      </CardElement>
+      <CardElement text>
+        You hardly have time to move as its magnificence disappears under your eyes !
         It was just a mirage caused by your appetite...
-        `}
       </CardElement>
     </Story>
   );

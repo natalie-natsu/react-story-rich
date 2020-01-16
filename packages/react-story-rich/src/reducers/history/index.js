@@ -1,5 +1,5 @@
 import createReducer from '../createReducer';
-import { GO_TO, REWIND_TO } from '../../classes/Navigation';
+import { GO_TO, REWIND_TO } from '../../classes/Route';
 
 // ACTIONS
 export const SET_HISTORY = '@react-story-rich.SET_HISTORY';

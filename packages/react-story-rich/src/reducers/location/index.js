@@ -1,5 +1,5 @@
 import createReducer from '../createReducer';
-import { GO_TO, REWIND_TO } from '../../classes/Navigation';
+import { GO_TO, REWIND_TO } from '../../classes/Route';
 
 export const SET_LOCATION = '@react-story-rich.SET_LOCATION';
 export const setLocation = (location) => ({ type: SET_LOCATION, location });

@@ -1,22 +1,24 @@
 import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
-import Card from '@material-ui/core/Card';
-import { makeStyles } from '@material-ui/core/styles';
+import noop from 'lodash/noop';
 
-import { Element, toElement } from '@react-story-rich/core';
+import Navigation from '@react-story-rich/core/classes/Navigation';
+import useChunk from '@react-story-rich/core/hooks/useChunk';
 import useEnabled from '@react-story-rich/core/hooks/useEnabled';
-import useProps from '@react-story-rich/core/hooks/useProps';
+import useFocus from '@react-story-rich/core/hooks/useFocus';
 import useTap from '@react-story-rich/core/hooks/useTap';
 
+import { makeStyles } from '@material-ui/core/styles';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 
-import useArea from '../hooks/useArea';
 import useActions from '../hooks/useActions';
 import useProgress from '../hooks/useProgress';
+
+import Area from '../Area';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,33 +34,50 @@ const useStyles = makeStyles((theme) => ({
 const CardElement = forwardRef((props, ref) => {
   const classes = useStyles();
 
-  const [injectedProps, extraProps, passThroughProps] = useProps(props, this.propTypes);
-  const [handleTap, handleKeyPress] = useTap(injectedProps, extraProps);
+  const {
+    actions,
+    children,
+    chunk,
+    injected,
+    media,
+    onEnable,
+    onTap,
+    onTimeout,
+    readOnly,
+    text,
+    typographyProps,
+    timeout,
+    ...passThroughProps
+  } = props;
 
-  const Area = useArea(injectedProps, extraProps);
-  const [hasActions, Actions] = useActions(injectedProps, extraProps);
-  const [hasProgress, Progress] = useProgress(injectedProps, extraProps);
+  const [el, tabIndex] = useFocus(ref, injected);
+  const [handleTap, handleKeyPress] = useTap(onTap, readOnly, injected);
 
-  useEnabled(injectedProps, extraProps);
+  const [hasActions, Actions] = useActions(actions, injected);
+  const [hasProgress, Progress] = useProgress(onTimeout, timeout, injected);
+
+  useChunk(chunk, injected);
+  useEnabled(onEnable, injected);
 
   return (
-    <Card
-      ref={ref}
+    <Area
       className={classes.root}
+      enabled={injected.enabled}
+      onTap={onTap}
       onClick={handleTap}
       onKeyPress={handleKeyPress}
+      readOnly={readOnly}
+      ref={el}
       tabIndex={tabIndex}
       {...passThroughProps}
     >
-      <Area>
-        {media && <CardMedia {...media} />}
-        <CardContent className={classes.cardContent}>
-          {text ? <Typography {...textProps}>{children}</Typography> : children}
-        </CardContent>
-      </Area>
+      {media && <CardMedia {...media} />}
+      <CardContent className={classes.cardContent}>
+        {text ? <Typography {...typographyProps}>{children}</Typography> : children}
+      </CardContent>
       {hasActions && <CardActions>{Actions}</CardActions>}
       {hasProgress && Progress}
-    </Card>
+    </Area>
   );
 });
 
@@ -69,64 +88,94 @@ CardElement.propTypes = {
    */
   actions: PropTypes.arrayOf(PropTypes.object),
   /**
-   * Object of Material UI CardActionArea props
-   * @see {@link https://material-ui.com/api/card-action-area/#cardactionarea-api | MUI CardActionArea API}
-   */
-  cardActionAreaProps: PropTypes.object,
-  /**
-   * Object of Material UI CardActionArea props
-   * @see {@link https://material-ui.com/api/card-actions/#cardactions-api | MUI CardAction API}
-   */
-  cardActionsProps: PropTypes.object,
-  /**
-   * Object of Material UI CardActionArea props
-   * @see {@link https://material-ui.com/api/card/#card-api | MUI Card API}
-   */
-  cardProps: PropTypes.object,
-  /**
    * Your own content displayed in a CardContent component
    * @see {@link https://material-ui.com/components/cards/#card | MUI Card demo}
    */
   children: PropTypes.node.isRequired,
   /**
-   * @ignore
+   * Chunk of locations to reduce the cost of navigation in big story trees.
+   * For example, if you know all possible next locations to this element
+   * you can use that collection to improve the search.
+   *
+   * Of course prefer goForward(skip) nav action for the best performance.
    */
-  classes: PropTypes.objectOf(PropTypes.string).isRequired,
+  chunk: PropTypes.array,
+  /**
+   * A set of props injected by the Story renderer
+   */
+  injected: PropTypes.shape({
+    /**
+     * If set to false, component will not be focused when being enabled.
+     */
+    autoFocus: PropTypes.bool.isRequired,
+    /**
+     * A Flag for indicating if the Element is currently active
+     */
+    enabled: PropTypes.bool.isRequired,
+    /**
+     * The location of the Element in the story tree
+     */
+    index: PropTypes.number.isRequired,
+    /**
+     * A set of navigation methods
+     * @see Navigation Class description
+     */
+    nav: PropTypes.instanceOf(Navigation).isRequired,
+    /**
+     * The location of the Element in the DOM tree or (index of Element in history + 1)
+     */
+    tabIndex: PropTypes.number.isRequired,
+  }).isRequired,
   /**
    * Object of Material UI CardMedia props
    * @see {@link https://material-ui.com/api/card-media/#cardmedia-api | MUI CardMedia API}
    */
   media: PropTypes.object,
   /**
-   * Object of Material UI LinearProgress props
-   * @see {@link https://material-ui.com/api/linear-progress/#linearprogress-api | MUI LinearProgress API}
+   * Callback triggered when Element is enabled by the Story.
    */
-  progressProps: PropTypes.object,
+  onEnable: PropTypes.func,
   /**
-   * @ignore
+   * Callback triggered when Element is enabled and is clicked or key pressed.
    */
-  tabIndex: PropTypes.number,
+  onTap: PropTypes.func,
+  /**
+   * Callback triggered when Element is enabled and the timeout delay is reached.
+   */
+  onTimeout: PropTypes.func,
+  /**
+   * If set to true, the enabled Element cannot be "tapped" but *onTimeout* can still be called.
+   * Useful if you want to wait for an audio to finish before making tapping possible.
+   *
+   * Note that a component with a noop onTap is considered as readOnly: true
+   */
+  readOnly: PropTypes.bool,
   /**
    * If true, will render children directly in a Material UI Typography component
    */
   text: PropTypes.bool,
   /**
+   * The delay *onTimeout* will be waiting before being triggered.
+   */
+  timeout: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
+  /**
    * Object of Material UI Typography props
    * @see {@link https://material-ui.com/api/typography/#typography-api | MUI Typography API}
    */
-  textProps: PropTypes.object,
+  typographyProps: PropTypes.object,
 };
 
 CardElement.defaultProps = {
-  ...Element.defaultProps,
   actions: [],
-  cardActionAreaProps: {},
-  cardActionsProps: {},
-  cardProps: {},
+  chunk: [],
   media: null,
-  progressProps: {},
+  onEnable: noop,
+  onTap: null,
+  onTimeout: noop,
+  readOnly: false,
   text: false,
-  textProps: {},
+  timeout: 0,
+  typographyProps: {},
 };
 
-export default toElement()(CardElement);
+export default CardElement;

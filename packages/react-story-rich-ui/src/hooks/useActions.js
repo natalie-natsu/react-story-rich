@@ -1,10 +1,7 @@
 import React, { useMemo } from 'react';
 import Button from '@material-ui/core/Button';
 
-const useActions = (injectedProps, extraProps) => useMemo(() => {
-  const { enabled, index } = injectedProps;
-  const { actions } = extraProps;
-
+const useActions = (actions, { enabled, index, nav }) => useMemo(() => {
   const hasActions = actions.length > 0;
   const Actions = [];
 
@@ -14,13 +11,13 @@ const useActions = (injectedProps, extraProps) => useMemo(() => {
         disabled={!enabled}
         color="primary"
         key={`react-story-rich-element_${index}-action_${i}`}
-        onClick={(e) => onClick(injectedProps, extraProps, e)}
+        onClick={(event) => onClick(nav, event)}
         {...rest}
       />,
     ));
   }
 
   return [hasActions, Actions];
-}, [injectedProps, extraProps]);
+}, [actions, enabled, index, nav]);
 
 export default useActions;

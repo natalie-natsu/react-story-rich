@@ -1,15 +1,16 @@
 import { useCallback } from 'react';
 
-const useTap = (injectedProps, extraProps) => {
-  const { enabled } = injectedProps;
-  const { onTap, readOnly } = extraProps;
+const useTap = (onTap, readOnly, { enabled, nav }) => {
+  const handleTap = useCallback((event) => {
+    if (enabled && !readOnly && onTap !== null) {
+      onTap(nav, event);
+    }
+  }, [enabled, nav, onTap, readOnly]);
 
-  const handleTap = useCallback((e) => {
-    if (enabled && !readOnly && onTap !== null) { onTap(injectedProps, extraProps, e); }
-  }, [enabled, extraProps, injectedProps, onTap, readOnly]);
-
-  const handleKeyPress = useCallback((e) => {
-    if (e.key === 'Enter' || e.key === ' ') { handleTap(e); }
+  const handleKeyPress = useCallback((event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      handleTap(event);
+    }
   }, [handleTap]);
 
   return [handleTap, handleKeyPress];

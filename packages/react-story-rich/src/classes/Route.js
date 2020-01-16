@@ -1,3 +1,5 @@
+import isNumber from 'lodash/isNumber';
+
 export const GO_TO = '@react-story-rich.GO_TO';
 export const REWIND_TO = '@react-story-rich.REWIND_TO';
 
@@ -10,6 +12,10 @@ class Route {
   }
 
   static isDestinationValid = (from, to) => {
+    if (!isNumber(from) || !isNumber(from)) {
+      throw Error(`A route needs to between two location number. Got from: ${from} to: ${to}`);
+    }
+
     if (from === to) {
       throw Error(`A route needs to have two different locations. Got from: ${from} to: ${to}`);
     }

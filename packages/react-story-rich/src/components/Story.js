@@ -1,11 +1,10 @@
-import React, { Children, cloneElement, isValidElement, useEffect, useMemo, useRef } from 'react';
+import React, { Children, cloneElement, forwardRef, isValidElement, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { isFragment } from 'react-is';
 
-import noop from 'lodash/noop';
 import uniqueId from 'lodash/uniqueId';
 
-import Navigation from './classes/Navigation';
+import Navigation from '../classes/Navigation';
 
 function flattenChildren(children, maxDepth, depth = 0) {
   return Children.toArray(children).reduce((acc, node) => {
@@ -21,7 +20,7 @@ function flattenChildren(children, maxDepth, depth = 0) {
   }, []);
 }
 
-export function toFlatArray(children, maxDepth = Infinity) {
+function toFlatArray(children, maxDepth = Infinity) {
   return flattenChildren(children, maxDepth);
 }
 
@@ -39,12 +38,14 @@ function useElements(children, history, dispatch, autoFocus) {
 
   const location = useMemo(() => history[history.length - 1].to, [history]);
   const elements = useMemo(() => history.map(({ to: i }) => (cloneElement(flatChildren[i], {
-    autoFocus,
-    enabled: location === i,
-    navigation: new Navigation(i, dispatch, locations),
-    tabIndex: i + 1,
-  }))), [dispatch, history, location, locations]);
-
+    injected: {
+      autoFocus,
+      enabled: location === i,
+      index: i,
+      nav: new Navigation(i, dispatch, locations),
+      tabIndex: i + 1,
+    },
+  }))), [autoFocus, dispatch, flatChildren, history, location, locations]);
 
   return [elements, locations];
 }
@@ -58,31 +59,25 @@ const scrollToBottom = (ref) => {
   }
 };
 
-function Story(props) {
+const Story = forwardRef((props, ref) => {
   const {
     autoFocus,
     autoScroll,
     children,
     component: Component,
-    componentProps,
     dispatch,
     history,
+    ...passThroughProps
   } = props;
 
-
-  console.log(history);
-
-  const ref = useRef(null);
   const [elements] = useElements(children, history, dispatch, autoFocus);
-
-  console.log(ref, elements);
 
   useEffect(() => {
     if (autoScroll) { scrollToBottom(ref); }
-  }, [history, autoScroll]);
+  }, [history, autoScroll, ref]);
 
-  return <Component ref={ref} {...componentProps}>{elements}</Component>;
-}
+  return <Component ref={ref} {...passThroughProps}>{elements}</Component>;
+});
 
 Story.propTypes = {
   /**
@@ -95,6 +90,8 @@ Story.propTypes = {
    */
   autoScroll: PropTypes.bool,
   /**
+   * @ignore
+   *
    * A node of several Element components.
    */
   children: PropTypes.node.isRequired,
@@ -104,9 +101,9 @@ Story.propTypes = {
    */
   component: PropTypes.elementType,
   /**
-   * The props passed to the component.
+   * The dispatcher of your store
    */
-  componentProps: PropTypes.object,
+  dispatch: PropTypes.func.isRequired,
   /**
    * A collection of actions from the oldest to the most recent.
    * Is a save on its own and can easy be persisted.
@@ -135,9 +132,7 @@ Story.propTypes = {
 Story.defaultProps = {
   autoFocus: true,
   autoScroll: true,
-  dispatch: noop,
   component: 'main',
-  componentProps: {},
 };
 
 export default Story;
