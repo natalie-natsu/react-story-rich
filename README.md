@@ -39,49 +39,18 @@ import { connect, Provider } from 'react-redux';
 import logger from 'redux-logger';
 import thunk from 'redux-thunk';
 
-import Break from '@react-story-rich/ui/Break';
-import { Element, Story, reducers } from '@react-story-rich/core';
-import CustomElementExample from '@react-story-rich/core/components/CustomElementExample';
+import noop from 'lodash/noop';
+
+import { Story, reducers } from '@react-story-rich/core';
+import CardElement from '@react-story-rich/ui/CardElement';
 
 import Grid from '@material-ui/core/Grid';
+
 
 const mapStateToProps = (state) => ({
   history: state.history,
   location: state.location,
 });
-
-const LYRICS = {
-  Intro: [
-    `Hey, ho, let's go !`,
-    `Hey, ho, let's go !`,
-    `Hey, ho, let's go !`,
-  ],
-  Verse: [
-    `They're formin' in a straight line`,
-    `They're goin' through a tight wind`,
-    `The kids are losin' their minds`,
-    `The Blitzkrieg Bop`,
-    `They're pilin' in the back seat`,
-    `They're generatin' steam heat`,
-    `Pulsatin' to the back beat`,
-    `The Blitzkrieg Bop`,
-  ],
-  Chorus: [
-    `Hey, ho, let's go !`,
-    `Shoot 'em in the back now`,
-    `What they want, I don't know`,
-    `They're all revved up ready to go`,
-  ],
-};
-
-const handleTimeout = ({ goForward }) => { goForward() };
-const handleTap = ({ goForward }) => { goForward() };
-
-const Lyrics = () => [...LYRICS.Intro, ...LYRICS.Verse, ...LYRICS.Chorus].map((text, i) => (
-  <CustomElementExample timeout={1500} onTimeout={handleTimeout} key={`LYRICS-${i}`}>
-    {text}
-  </CustomElementExample>
-));
 
 const OurStory = connect(mapStateToProps)(({ history, location, dispatch }) => {
   return (
@@ -90,42 +59,29 @@ const OurStory = connect(mapStateToProps)(({ history, location, dispatch }) => {
       autoScroll={false}
       component={Grid}
       componentProps={{ container: true, spacing: 2 }}
+      dispatch={dispatch}
       history={history}
       location={location}
     >
-      <CustomElementExample onTap={handleTap}>
-        Imagine you found a box of your old video games.
-      </CustomElementExample>
-      <CustomElementExample onTap={handleTap}>
-        At the very bottom, you see the Tony Hawk PS1 game.
-      </CustomElementExample>
-      <CustomElementExample onTap={handleTap}>
-        You remember having fun with your friends on it,
-        so you bring back to life your old console.
-      </CustomElementExample>
-      <CustomElementExample onTap={handleTap} gridProps={{ sm: 12 }}>
-        You remember those good old punk rock music when suddenly
-        you hear the saturated sound of guitars.
-      </CustomElementExample>
-      <Element
-        boxProps={{ component: Grid, item: true, xs: 12}}
-        component={Break}
-        divider={false}
-        dispatch={dispatch}
-      />
-      {Lyrics()}
-      <Element
-        boxProps={{ component: Grid, item: true, xs: 12}}
-        component={Break}
-        divider={false}
-        dispatch={dispatch}
-      />
-      <CustomElementExample onTap={handleTap} gridProps={{ sm: 6 }}>
-        It was a good memory to remember.
-      </CustomElementExample>
-      <CustomElementExample readOnly gridProps={{ sm: 6 }}>
-        Hope it was a good one to share.
-      </CustomElementExample>
+      <CardElement
+        actions={[{
+          children: 'Bow to say hi',
+          onClick: noop,
+        }, {
+          children: 'Kill it',
+          onClick: noop,
+        },]}
+        enabled={enabled}
+        text
+      >
+        {enabled && `A magnificent blue lobster appears, like the Apollo of the Oceans.
+        His whiskers wiggle and his pliers snap frantically.
+        Your stomach is empty. What do you want to do ?
+        `}
+        {!enabled && `You hardly have time to move as its magnificence disappears under your eyes !
+        It was just a mirage caused by your appetite...
+        `}
+      </CardElement>
     </Story>
   );
 });

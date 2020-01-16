@@ -13,7 +13,7 @@ export const INJECTED_PROP_TYPES = {
    * A unique id given to the Element that can be used for navigation.
    * @see `label` prop to navigate through a Knot.
    */
-  _id: PropTypes.string.isRequired,
+  _id: PropTypes.string,
   /**
    * If set to false, component will not be focused when being enabled.
    */
@@ -63,12 +63,6 @@ const toElement = (mapInjectedPropsToProps = identity, ref = createRef()) => {
   }
 
   return ((WrappedComponent) => {
-    const injectedProps = mapInjectedPropsToProps(this.props);
-
-    if (!isObject(injectedProps)) {
-      throw Error(`injectedProp should be an object. Got ${typeof injectedProps}. Check mapInjectedPropsToProps`);
-    }
-
     class WrapperComponent extends Component {
       constructor(props) {
         super(props);
@@ -109,6 +103,12 @@ const toElement = (mapInjectedPropsToProps = identity, ref = createRef()) => {
           ...passThroughProps
         } = this.props;
 
+        const injectedProps = mapInjectedPropsToProps(getElementInjectedProps(this.props));
+
+        if (!isObject(injectedProps)) {
+          throw Error(`injectedProp should be an object. Got ${typeof injectedProps}. Check mapInjectedPropsToProps`);
+        }
+
         if (hasError) { return <ErrorComponent error={error} errorInfo={errorInfo} />; }
 
         if (chunk.length > 0) { navigation.setChunk(chunk); }
@@ -118,8 +118,7 @@ const toElement = (mapInjectedPropsToProps = identity, ref = createRef()) => {
             autoFocus={autoFocus}
             data-id={_id}
             data-index={index}
-            disabled={!enabled}
-            ref={this.ref}
+            ref={ref}
             tabIndex={tabIndex}
             {...injectedProps}
             {...passThroughProps}
@@ -131,6 +130,7 @@ const toElement = (mapInjectedPropsToProps = identity, ref = createRef()) => {
     WrapperComponent.propTypes = INJECTED_PROP_TYPES;
 
     WrapperComponent.defaultProps = {
+      _id: '',
       chunk: [],
       ErrorComponent: () => <p>Something went wrong.</p>,
     };

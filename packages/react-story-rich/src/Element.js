@@ -1,59 +1,28 @@
-import React, { forwardRef, useCallback, useEffect } from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
-import toElement, { getElementInjectedProps } from './toElement';
+import toElement from './toElement';
+
+import useProps from './hooks/useProps';
+import useEnabled from './hooks/useEnabled';
+import useTimeout from './hooks/useTimeout';
+import useTap from './hooks/useTap';
 
 const Element = forwardRef((props, ref) => {
-  const { component, enabled, onEnable, onTimeout, onTap, readOnly, timeout, ...rest } = props;
-  const injectedProps = getElementInjectedProps(props);
+  console.log(props);
+  const [injectedProps, extraProps, passThroughProps] = useProps(props, this.propTypes);
+  const [handleTap, handleKeyPress] = useTap(injectedProps, extraProps);
 
-  // Basic Mounting/Enable Effect
-  // We need to listen "enabled" in case of REWIND_TO action in history
-  useEffect(() => {
-    if (enabled) { onEnable(injectedProps, rest); }
-  }, [enabled, injectedProps, onEnable, rest]);
-
-  // Timeout Effect
-  useEffect(() => {
-    let currentTimeout = null;
-
-    if (enabled === true) {
-      currentTimeout = setTimeout(
-        () => onTimeout(injectedProps, rest),
-        timeout + 500,
-      );
-    } else { clearTimeout(currentTimeout); }
-
-    return () => clearTimeout(currentTimeout);
-
-    // Disabling this rule here because it's way more digest like this
-    // We know that it's need to be effected only when enabled prop is changing
-    // and no matters [onTimeout, injectedProps, rest, timeout]
-    // because they're not supposed to change are if they do,
-    // it's not supposed to affect the timeout
-
-    // If you want to modify the onTimeout prop after setTimeout is called,
-    // please write your own logic in a Custom component.
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled]);
-
-  const handleTap = useCallback((e) => {
-    if (enabled && !readOnly && onTap !== null) { onTap(injectedProps, rest, e); }
-  }, [enabled, injectedProps, onTap, readOnly, rest]);
-
-  const handleKeyPress = useCallback((e) => {
-    if (e.key === 'Enter' || e.key === ' ') { handleTap(e); }
-  }, [handleTap]);
+  useEnabled(injectedProps, extraProps);
+  useTimeout(injectedProps, extraProps);
 
   return (
     <component
-      disabled={!enabled}
       onClick={handleTap}
       onKeyPress={handleKeyPress}
       ref={ref}
-      {...rest}
+      {...passThroughProps}
     />
   );
 });
@@ -64,10 +33,6 @@ Element.propTypes = {
    * Either a string to use a DOM element or a component.
    */
   component: PropTypes.elementType,
-  /**
-   * @ignore
-   */
-  enabled: PropTypes.bool.isRequired,
   /**
    * Callback triggered when Element is enabled by the Story.
    */

@@ -1,7 +1,8 @@
 import React, { Children, cloneElement, isValidElement, useEffect, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
-
 import { isFragment } from 'react-is';
+
+import noop from 'lodash/noop';
 import uniqueId from 'lodash/uniqueId';
 
 import Navigation from './classes/Navigation';
@@ -24,7 +25,7 @@ export function toFlatArray(children, maxDepth = Infinity) {
   return flattenChildren(children, maxDepth);
 }
 
-function useElements(children, history, dispatch) {
+function useElements(children, history, dispatch, autoFocus) {
   // Building flat map tree of Elements for establishing uniq locations
   const flatChildren = useMemo(() => toFlatArray(children), [children]);
 
@@ -37,14 +38,15 @@ function useElements(children, history, dispatch) {
   })), [flatChildren]);
 
   const location = useMemo(() => history[history.length - 1].to, [history]);
-  const elements = useMemo(() => history.map(({ to: i }) => (cloneElement(elements[i], {
+  const elements = useMemo(() => history.map(({ to: i }) => (cloneElement(flatChildren[i], {
+    autoFocus,
     enabled: location === i,
     navigation: new Navigation(i, dispatch, locations),
     tabIndex: i + 1,
   }))), [dispatch, history, location, locations]);
 
 
-  return [locations, flatChildren];
+  return [elements, locations];
 }
 
 const scrollToBottom = (ref) => {
@@ -63,12 +65,17 @@ function Story(props) {
     children,
     component: Component,
     componentProps,
+    dispatch,
     history,
-    location,
   } = props;
 
+
+  console.log(history);
+
   const ref = useRef(null);
-  const [elements] = useElements(children, history, location, autoFocus);
+  const [elements] = useElements(children, history, dispatch, autoFocus);
+
+  console.log(ref, elements);
 
   useEffect(() => {
     if (autoScroll) { scrollToBottom(ref); }
@@ -106,22 +113,13 @@ Story.propTypes = {
    */
   history: PropTypes.arrayOf(PropTypes.shape({
     /**
-     * The context/state when the action is dispatched.
+     * The current location.
      */
-    dataContext: PropTypes.objectOf(PropTypes.any),
+    from: PropTypes.number,
     /**
-     * A location to another
+     * The location to be next.
      */
-    route: PropTypes.shape({
-      /**
-       * The current location.
-       */
-      from: PropTypes.number,
-      /**
-       * The location to be next.
-       */
-      to: PropTypes.number,
-    }),
+    to: PropTypes.number,
     /**
      * The type of the action that were dispatched.
      * GO_TO or REWIND_TO.
@@ -137,6 +135,7 @@ Story.propTypes = {
 Story.defaultProps = {
   autoFocus: true,
   autoScroll: true,
+  dispatch: noop,
   component: 'main',
   componentProps: {},
 };

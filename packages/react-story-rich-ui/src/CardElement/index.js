@@ -1,90 +1,66 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
 import Card from '@material-ui/core/Card';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
-import { Element } from '@react-story-rich/core';
+import { Element, toElement } from '@react-story-rich/core';
+import useEnabled from '@react-story-rich/core/hooks/useEnabled';
+import useProps from '@react-story-rich/core/hooks/useProps';
+import useTap from '@react-story-rich/core/hooks/useTap';
 
-import Area from './Area';
-import Actions from './Actions';
-import LinearDeterminate from './LinearDeterminate';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import Typography from '@material-ui/core/Typography';
 
-/**
- * See https://wasa42.github.io/react-story-rich/#element for demo and example.
- */
-class CardElement extends Element {
-  render() {
-    const {
-      actions,
-      autoFocus,
-      cardActionAreaProps,
-      cardActionsProps,
-      cardProps,
-      children,
-      classes,
-      enabled,
-      media,
-      onTap,
-      progressProps,
-      readOnly,
-      tabIndex,
-      text,
-      textProps,
-      timeout,
-    } = this.props;
+import useArea from '../hooks/useArea';
+import useActions from '../hooks/useActions';
+import useProgress from '../hooks/useProgress';
 
-    const hasActions = actions.length > 0;
-    const hasLinear = hasActions && !!timeout;
-    const navigation = hasActions && this._getNavigation();
+const useStyles = makeStyles((theme) => ({
+  root: {
+    marginBottom: theme.spacing(2),
+  },
+  cardContent: {
+    '&:last-child': {
+      padding: theme.spacing(2),
+    },
+  },
+}));
 
-    return (
-      <div className={classes.root}>
-        <Card
-          autoFocus={autoFocus}
-          data-index={this.index}
-          data-disabled={!enabled}
-          onClick={this.handleTap}
-          onKeyPress={this.handleKeyPress}
-          ref={this.ref}
-          tabIndex={tabIndex}
-          {...cardProps}
-        >
-          <Area
-            onTap={onTap}
-            enabled={enabled}
-            media={media}
-            readOnly={readOnly}
-            text={text}
-            textProps={textProps}
-            {...cardActionAreaProps}
-          >
-            {children}
-          </Area>
+const CardElement = forwardRef((props, ref) => {
+  const classes = useStyles();
 
-          {hasActions && (
-            <Actions
-              actions={actions}
-              elementProps={this.props}
-              enabled={enabled}
-              index={this.index}
-              navigation={navigation}
-              {...cardActionsProps}
-            />
-          )}
+  const [injectedProps, extraProps, passThroughProps] = useProps(props, this.propTypes);
+  const [handleTap, handleKeyPress] = useTap(injectedProps, extraProps);
 
-          {hasLinear && (
-            <LinearDeterminate
-              timeout={timeout}
-              enabled={enabled}
-              {...progressProps}
-            />
-          )}
-        </Card>
-      </div>
-    );
-  }
-}
+  const Area = useArea(injectedProps, extraProps);
+  const [hasActions, Actions] = useActions(injectedProps, extraProps);
+  const [hasProgress, Progress] = useProgress(injectedProps, extraProps);
+
+  useEnabled(injectedProps, extraProps);
+
+  return (
+    <Card
+      ref={ref}
+      className={classes.root}
+      onClick={handleTap}
+      onKeyPress={handleKeyPress}
+      tabIndex={tabIndex}
+      {...passThroughProps}
+    >
+      <Area>
+        {media && <CardMedia {...media} />}
+        <CardContent className={classes.cardContent}>
+          {text ? <Typography {...textProps}>{children}</Typography> : children}
+        </CardContent>
+      </Area>
+      {hasActions && <CardActions>{Actions}</CardActions>}
+      {hasProgress && Progress}
+    </Card>
+  );
+});
 
 CardElement.propTypes = {
   /**
@@ -92,11 +68,6 @@ CardElement.propTypes = {
    * @see {@link https://material-ui.com/api/button/#button-api | MUI Button API}
    */
   actions: PropTypes.arrayOf(PropTypes.object),
-  /**
-   * @ignore
-   * If set to false, component will not be focused when being enabled.
-   */
-  autoFocus: PropTypes.bool,
   /**
    * Object of Material UI CardActionArea props
    * @see {@link https://material-ui.com/api/card-action-area/#cardactionarea-api | MUI CardActionArea API}
@@ -158,10 +129,4 @@ CardElement.defaultProps = {
   textProps: {},
 };
 
-const styles = (theme) => ({
-  root: {
-    marginBottom: theme.spacing(2),
-  },
-});
-
-export default withStyles(styles)(CardElement);
+export default toElement()(CardElement);

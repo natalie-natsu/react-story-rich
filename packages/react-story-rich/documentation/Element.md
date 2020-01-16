@@ -1,7 +1,7 @@
 ````jsx harmony
 import React, { useState }from 'react';
 import Button from '@material-ui/core/Button';
-import CardElement from '@react-story-rich/ui/CardElement';
+import CardElement from '@react-story-rich/core/CardElement';
 
   const [tapped, setTapped] = useState(false);
   const [enabled, setEnabled] = useState(true);

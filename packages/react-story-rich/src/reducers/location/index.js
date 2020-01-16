@@ -5,15 +5,15 @@ export const SET_LOCATION = '@react-story-rich.SET_LOCATION';
 export const setLocation = (location) => ({ type: SET_LOCATION, location });
 
 const set = (state, { location }) => location;
-const navigate = (state, { route }) => {
-  if (route.from !== state) {
+const navigate = (state, { from, to }) => {
+  if (from !== state) {
     throw Error(`
       You try to navigate from a different point than the current location.
-      Got from:${route.from} instead of ${state}.
+      Got from:${from} instead of ${state}.
     `);
   }
 
-  return route.to;
+  return to;
 };
 
 export default createReducer(0, {

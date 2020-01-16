@@ -9,7 +9,7 @@ export const RESET_HISTORY = '@react-story-rich.RESET_HISTORY';
 export const resetHistory = () => ({ type: RESET_HISTORY });
 
 // REDUCER
-export const initialHistoryState = [{ dataContext: {}, route: { from: null, to: 0 } }];
+export const initialHistoryState = [{ from: null, to: 0 }];
 
 export default createReducer(initialHistoryState, {
   [GO_TO]: (state, action) => [...state, action],

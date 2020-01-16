@@ -7,9 +7,6 @@ export * from './reducers/history';
 export { default as location } from './reducers/location';
 export * from './reducers/location';
 
-export { default as Navigation } from './classes/Navigation';
-export { default as Route } from './classes/Route';
-
 export { default as toElement } from './toElement';
 export * from './toElement';
 
