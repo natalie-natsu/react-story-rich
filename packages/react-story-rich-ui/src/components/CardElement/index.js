@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import noop from 'lodash/noop';
@@ -15,10 +15,10 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 
-import useActions from '../hooks/useActions';
-import useProgress from '../hooks/useProgress';
+import useActions from '../../hooks/useActions';
+import useProgress from '../../hooks/useProgress';
 
-import Area from '../Area';
+import CardElementArea from '../CardElementArea';
 
 const useStyles = makeStyles((theme) => ({
   cardContent: {
@@ -47,25 +47,27 @@ const CardElement = forwardRef((props, ref) => {
     ...passThroughProps
   } = props;
 
-  const [el, tabIndex] = useFocus(ref, injected);
+  const elementRef = useRef(null);
   const [handleTap, handleKeyPress] = useTap(onTap, readOnly, injected);
-
   const [hasActions, Actions] = useActions(actions, injected);
   const [hasProgress, Progress] = useProgress(onTimeout, timeout, injected, hasActions);
 
+  useImperativeHandle(ref, () => ({ focus: elementRef.current.focus }));
+
   useChunk(chunk, injected);
   useEnabled(onEnable, injected);
+  useFocus(elementRef, injected);
 
   return (
-    <Area
+    <CardElementArea
       enabled={injected.enabled}
       hasActions={hasActions}
       onTap={onTap}
       onClick={handleTap}
       onKeyPress={handleKeyPress}
       readOnly={readOnly}
-      ref={el}
-      tabIndex={tabIndex}
+      ref={elementRef}
+      tabIndex={injected.tabIndex}
       {...passThroughProps}
     >
       {media && <CardMedia {...media} />}
@@ -74,7 +76,7 @@ const CardElement = forwardRef((props, ref) => {
       </CardContent>
       {hasActions && <CardActions>{Actions}</CardActions>}
       {hasProgress && Progress}
-    </Area>
+    </CardElementArea>
   );
 });
 

@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/logo.png" alt="@react-story-rich logo">
+<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/assets/logo.png" alt="@react-story-rich logo">
 
 @react-story-rich is made for people having knowledge in JavaScript and React
 who doesn't want to lean a "proxy" language to make a narrative game.
@@ -43,7 +43,7 @@ import Story from '@react-story-rich/core/components/Story';
 import reducers from '@react-story-rich/core/reducers';
 import mapStateToProps from '@react-story-rich/core/reducers/mapStateToProps';
 
-import CardElement from '@react-story-rich/ui/CardElement';
+import CardElement from '@react-story-rich/ui/components/CardElement';
 
 const OurStory = connect(mapStateToProps)(({ history, dispatch }) => {
   const actions = useMemo(() => [

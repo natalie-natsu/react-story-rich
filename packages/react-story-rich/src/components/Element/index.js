@@ -2,13 +2,13 @@ import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
-import Navigation from '../classes/Navigation';
+import Navigation from '@react-story-rich/core/classes/Navigation';
 
-import useEnabled from '../hooks/useEnabled';
-import useTimeout from '../hooks/useTimeout';
-import useTap from '../hooks/useTap';
-import useFocus from '../hooks/useFocus';
-import useChunk from '../hooks/useChunk';
+import useEnabled from '@react-story-rich/core/hooks/useEnabled';
+import useTimeout from '@react-story-rich/core/hooks/useTimeout';
+import useTap from '@react-story-rich/core/hooks/useTap';
+import useFocus from '@react-story-rich/core/hooks/useFocus';
+import useChunk from '@react-story-rich/core/hooks/useChunk';
 
 const Element = forwardRef((props, ref) => {
   const {
@@ -23,7 +23,7 @@ const Element = forwardRef((props, ref) => {
     ...passThroughProps
   } = props;
 
-  const [el, tabIndex] = useFocus(ref, injected);
+  const elementRef = useFocus(ref, injected);
   const [handleTap, handleKeyPress] = useTap(onTap, readOnly, injected);
 
   useChunk(chunk, injected);
@@ -34,8 +34,8 @@ const Element = forwardRef((props, ref) => {
     <Component
       onClick={handleTap}
       onKeyPress={handleKeyPress}
-      ref={el}
-      tabIndex={tabIndex}
+      ref={elementRef}
+      tabIndex={injected.tabIndex}
       {...passThroughProps}
     />
   );

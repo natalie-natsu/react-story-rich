@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -25,12 +25,20 @@ const useStyles = makeStyles((theme) => ({
  * @return {*}
  * @constructor
  */
-const Area = ({ children, component, enabled, hasActions, onTap, readOnly, ...rest }) => {
+const CardElementArea = forwardRef(({
+  children,
+  component,
+  enabled,
+  hasActions,
+  onTap,
+  readOnly,
+  ...rest
+}, ref) => {
   const classes = useStyles();
 
   if (onTap !== null && !hasActions) {
     return (
-      <Card component={component} classes={classes}>
+      <Card ref={ref} component={component} classes={classes}>
         <CardActionArea {...rest} disabled={!enabled || readOnly}>
           {children}
         </CardActionArea>
@@ -38,10 +46,10 @@ const Area = ({ children, component, enabled, hasActions, onTap, readOnly, ...re
     );
   }
 
-  return <Card component={component} classes={classes} {...rest}>{children}</Card>;
-};
+  return <Card ref={ref} component={component} classes={classes} {...rest}>{children}</Card>;
+});
 
-Area.propTypes = {
+CardElementArea.propTypes = {
   /**
    * Your own CardContent
    * @see {@link https://material-ui.com/api/card-content/#cardcontent-api| MUI CardContent API}
@@ -56,7 +64,7 @@ Area.propTypes = {
    */
   enabled: PropTypes.bool.isRequired,
   /**
-   * If set to true, Area will not be tap able.
+   * If set to true, CardElementArea will not be tap able.
    * Actions will prior onTap
    */
   hasActions: PropTypes.bool,
@@ -73,11 +81,11 @@ Area.propTypes = {
   readOnly: PropTypes.bool,
 };
 
-Area.defaultProps = {
+CardElementArea.defaultProps = {
   component: 'div',
   hasActions: false,
   onTap: null,
   readOnly: false,
 };
 
-export default Area;
+export default CardElementArea;

@@ -1,3 +1,3 @@
-export { default as CardElement } from './CardElement';
-export { default as Landing } from './Landing';
-export { default as Layout } from './Layout';
+export { default as CardElement } from './components/CardElement';
+export { default as CardElementArea } from './components/CardElementArea';
+export { default as Progress } from './components/Progress';

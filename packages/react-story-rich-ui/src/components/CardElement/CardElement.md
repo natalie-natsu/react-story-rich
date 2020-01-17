@@ -16,7 +16,7 @@ import reducers from '@react-story-rich/core/reducers';
 import mapStateToProps from '@react-story-rich/core/reducers/mapStateToProps';
 import { resetHistory } from '@react-story-rich/core/reducers/history';
 
-import CardElement from '@react-story-rich/ui/CardElement';
+import CardElement from '@react-story-rich/ui/components/CardElement';
 
 import {makeStyles} from '@material-ui/core/styles';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -90,6 +90,7 @@ const OurStory = connect(mapStateToProps)(({ history, dispatch }) => {
   return (
     <>
       <Story
+        autoFocus={false}
         autoScroll={false}
         dispatch={dispatch}
         history={history}
