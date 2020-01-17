@@ -21,9 +21,6 @@ import useProgress from '../hooks/useProgress';
 import Area from '../Area';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    marginBottom: theme.spacing(2),
-  },
   cardContent: {
     '&:last-child': {
       padding: theme.spacing(2),
@@ -54,15 +51,15 @@ const CardElement = forwardRef((props, ref) => {
   const [handleTap, handleKeyPress] = useTap(onTap, readOnly, injected);
 
   const [hasActions, Actions] = useActions(actions, injected);
-  const [hasProgress, Progress] = useProgress(onTimeout, timeout, injected);
+  const [hasProgress, Progress] = useProgress(onTimeout, timeout, injected, hasActions);
 
   useChunk(chunk, injected);
   useEnabled(onEnable, injected);
 
   return (
     <Area
-      className={classes.root}
       enabled={injected.enabled}
+      hasActions={hasActions}
       onTap={onTap}
       onClick={handleTap}
       onKeyPress={handleKeyPress}
@@ -73,7 +70,7 @@ const CardElement = forwardRef((props, ref) => {
     >
       {media && <CardMedia {...media} />}
       <CardContent className={classes.cardContent}>
-        {text ? <Typography {...typographyProps}>{children}</Typography> : children}
+        {text ? <Typography align="center" {...typographyProps}>{children}</Typography> : children}
       </CardContent>
       {hasActions && <CardActions>{Actions}</CardActions>}
       {hasProgress && Progress}
@@ -125,7 +122,7 @@ CardElement.propTypes = {
      * The location of the Element in the DOM tree or (index of Element in history + 1)
      */
     tabIndex: PropTypes.number.isRequired,
-  }).isRequired,
+  }),
   /**
    * Object of Material UI CardMedia props
    * @see {@link https://material-ui.com/api/card-media/#cardmedia-api | MUI CardMedia API}
@@ -157,7 +154,7 @@ CardElement.propTypes = {
   /**
    * The delay *onTimeout* will be waiting before being triggered.
    */
-  timeout: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
+  timeout: PropTypes.number,
   /**
    * Object of Material UI Typography props
    * @see {@link https://material-ui.com/api/typography/#typography-api | MUI Typography API}
@@ -168,6 +165,7 @@ CardElement.propTypes = {
 CardElement.defaultProps = {
   actions: [],
   chunk: [],
+  injected: undefined,
   media: null,
   onEnable: noop,
   onTap: null,

@@ -56,6 +56,7 @@ Element.propTypes = {
    */
   component: PropTypes.elementType,
   /**
+   * @ignore
    * A set of props injected by the Story renderer
    */
   injected: PropTypes.shape({
@@ -80,7 +81,7 @@ Element.propTypes = {
      * The location of the Element in the DOM tree or (index of Element in history + 1)
      */
     tabIndex: PropTypes.number.isRequired,
-  }).isRequired,
+  }),
   /**
    * Callback triggered when Element is enabled by the Story.
    */
@@ -103,12 +104,13 @@ Element.propTypes = {
   /**
    * The delay *onTimeout* will be waiting before being triggered.
    */
-  timeout: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
+  timeout: PropTypes.number,
 };
 
 Element.defaultProps = {
   chunk: [],
   component: 'div',
+  injected: undefined,
   onEnable: noop,
   onTap: null,
   onTimeout: noop,

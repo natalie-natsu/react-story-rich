@@ -149,7 +149,7 @@ class Navigation {
    * @param from
    * @param skip
    */
-  goBackward = (from = this.from, skip = 0) => {
+  goBackward = (skip = 0, from = this.from) => {
     this._apply(new Route(from, from - skip - 1, REWIND_TO));
   };
 
@@ -157,7 +157,7 @@ class Navigation {
    * @param from
    * @param skip
    */
-  goForward = (from = this.from, skip = 0) => {
+  goForward = (skip = 0, from = this.from) => {
     this._apply(new Route(from, from + skip + 1));
   };
 }

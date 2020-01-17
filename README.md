@@ -45,7 +45,7 @@ import mapStateToProps from '@react-story-rich/core/reducers/mapStateToProps';
 
 import CardElement from '@react-story-rich/ui/CardElement';
 
-const OurStory = connect(mapStateToProps)(({ history, location, dispatch }) => {
+const OurStory = connect(mapStateToProps)(({ history, dispatch }) => {
   const actions = useMemo(() => [
     { children: 'Bow to say hi', onClick: (nav) => nav.goForward() },
     { children: 'Kill it', onClick: (nav) => nav.goForward() },
@@ -53,11 +53,9 @@ const OurStory = connect(mapStateToProps)(({ history, location, dispatch }) => {
 
   return (
     <Story
-      autoFocus={false}
       autoScroll={false}
       dispatch={dispatch}
       history={history}
-      location={location}
     >
       <CardElement actions={actions} text>
         A magnificent blue lobster appears, like the Apollo of the Oceans.

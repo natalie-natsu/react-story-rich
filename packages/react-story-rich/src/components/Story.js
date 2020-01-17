@@ -123,10 +123,6 @@ Story.propTypes = {
      */
     type: PropTypes.string,
   })).isRequired,
-  /**
-   * The current location in the Elements tree.
-   */
-  location: PropTypes.number.isRequired,
 };
 
 Story.defaultProps = {

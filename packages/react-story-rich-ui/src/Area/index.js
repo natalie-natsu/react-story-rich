@@ -1,26 +1,36 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    marginBottom: theme.spacing(2),
+  },
+}));
+
 /**
- * Pure Component for Card rendering
- * Useful in custom component, otherwise, prefer use CardElement component
+ * Pure Component for Card rendering.
+ * Useful in custom component, otherwise, prefer use CardElement component.
  *
  * @param children
  * @param component
  * @param enabled
+ * @param hasActions
  * @param onTap
  * @param readOnly
  * @param rest
  * @return {*}
  * @constructor
  */
-const Area = ({ children, component, enabled, onTap, readOnly, ...rest }) => {
-  if (onTap !== null) {
+const Area = ({ children, component, enabled, hasActions, onTap, readOnly, ...rest }) => {
+  const classes = useStyles();
+
+  if (onTap !== null && !hasActions) {
     return (
-      <Card component={component}>
+      <Card component={component} classes={classes}>
         <CardActionArea {...rest} disabled={!enabled || readOnly}>
           {children}
         </CardActionArea>
@@ -28,7 +38,7 @@ const Area = ({ children, component, enabled, onTap, readOnly, ...rest }) => {
     );
   }
 
-  return <Card component={component} {...rest}>{children}</Card>;
+  return <Card component={component} classes={classes} {...rest}>{children}</Card>;
 };
 
 Area.propTypes = {
@@ -46,6 +56,11 @@ Area.propTypes = {
    */
   enabled: PropTypes.bool.isRequired,
   /**
+   * If set to true, Area will not be tap able.
+   * Actions will prior onTap
+   */
+  hasActions: PropTypes.bool,
+  /**
    * Callback triggered when Element is enabled and is clicked or key pressed.
    */
   onTap: PropTypes.func,
@@ -60,6 +75,7 @@ Area.propTypes = {
 
 Area.defaultProps = {
   component: 'div',
+  hasActions: false,
   onTap: null,
   readOnly: false,
 };
