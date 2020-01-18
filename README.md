@@ -1,77 +1,75 @@
-## React JS framework for story-rich games.
+<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/assets/logo.png" alt="@react-story-rich logo">
 
-<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/static/react-story-rich.png" alt="RSR logo">
+**@react-story-rich renders components according to the history of user actions.** <br/>
+These components are made to navigate from one to another and create a line of event in the DOM.
 
-## Installation
 ```bash
 npm install @react-story-rich/core -S
 // or
 yarn add @react-story-rich/core
 ```
 
-## Usage
-To create a game with RSR, there are three principles you need to know:
+<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/assets/example.gif" alt="Example of a CardElement from @react-story-rich">
 
-### 1) Only two components
-Your story is compose of a `<Story>` component doing the rendering and multiple `<Element>`
-components that create the all book.
+```jsx harmony
+import React, { useCallback, useMemo } from 'react';
 
-### 2) Tree navigation
-* You navigate from `<Element>` to `<Element>` by dispatching actions like `goForward()`.
-* You can use fragments to organize chapters and sequences, but at the end `children` of you story
-are flatten to one big array of `<Element>` components
-* Then the Story give elements a number you can use as an id  `goTo(6)`
-* You can also give unique ids to elements to navigate without knowing the element number.
+import { createStore, compose, applyMiddleware } from 'redux';
+import { connect, Provider } from 'react-redux';
 
-### 3) One source of truth
-RSR can use redux to manage the entire state. To do that, you need to wrap your story with
-the `<Provider>` component.
+import logger from 'redux-logger';
+import thunk from 'redux-thunk';
 
-Each time you navigate between elements, an history and a location are updated,
-the history being all actions you've done before and the location being the number of the element
-you are currently on.
+import Story from '@react-story-rich/core/components/Story';
+import reducers from '@react-story-rich/core/reducers';
+import resetHistory from '@react-story-rich/core/reducers/history';
+import mapStateToProps from '@react-story-rich/core/reducers/mapStateToProps';
 
-You can also use the data state to store information like health, skills or inventory.
+import CardElement from '@react-story-rich/ui/components/CardElement';
 
-```jsx harmony static
-import React from 'react';
-import { Element, Story, Provider, goForward, goTo } from '@react-story-rich/core';
+const OurStory = connect(mapStateToProps)(({ history, dispatch }) => {
+  const actions = useMemo(() => [
+    { children: 'Attack', onClick: (nav) => nav.goForward() },
+    { children: 'Observe', onClick: (nav) => nav.goForward(1) },
+  ]);
 
-function MyStory() {
-  const timeout = 1000;
-  let count = 0;
-
-  const onTimeout = ({ dispatch }) => dispatch(goForward());
-  const loop = ({ dispatch, location }) => {
-    count += 1;
-    if (count < 3) { dispatch(goTo(location, 0)); }
-  };
+  const handleReset = useCallback(() => dispatch(resetHistory()), [dispatch, resetHistory]);
+  const resetAction = useMemo(() => ({ children: 'Reset', onClick: handleReset }), [handleReset]);
 
   return (
-    <Provider>
-      <Story autoFocus={false} scrollToBottom={false}>
-        <Element timeout={timeout} onTimeout={onTimeout}>Hey</Element>
-        <Element timeout={timeout} onTimeout={onTimeout}>Oh !</Element>
-        <Element onTap={loop}>Let's go !</Element>
-      </Story>
-    </Provider>
+    <Story
+      autoScroll={false}
+      dispatch={dispatch}
+      history={history}
+    >
+      <CardElement text actions={actions}>
+        Master said that these woods were home to many monsters,
+        slaying even the most seasoned adventurers,
+        but I never thought I would come across such a beast.
+        Of a bewitched green, its scales reflected the mystical lights of the forest
+        and of his lair I was going to meet it. O dragon, what could I have done to you?
+      </CardElement>
+      <CardElement text actions={[resetAction]}>
+        A big flash sucks you towards nothingness.
+        The dragon was as strong as you were reckless.
+      </CardElement>
+      <CardElement text actions={[resetAction]}>
+        With an ounce of intelligence, you can discern the true from the false.
+        This dragon was only the fruit of your imagination.
+      </CardElement>
+    </Story>
   );
-}
-```
-### [See the full documentation here.](https://wasa42.github.io/react-story-rich)
+});
 
-## TODOs and appreciated improvements
-* More examples in the documentation
-  * Audio
-  * Theme customization
-  * Routing
-  * Persistence
-  * Translations
-  * Virtualized Story
-  * Deployment on GH Pages/Web, Mobile and OSs
-* Accessibility
-* XBox controller integration (is that possible ?)
-* Issue templates
-* Tools for editing and debugging Elements
-* Obviously tests (sorry for not implementing them sooner 🤷)
-* Add a CI/CD
+const middleWares = [thunk, logger];
+const store = createStore(reducers, compose(applyMiddleware(...middleWares)));
+
+const App = () => (
+  <Provider store={store}>
+    <OurStory />
+  </Provider>
+);
+
+  <App />
+```
+[See CardElement styled component for more information.](http://localhost:6060/#cardelement)

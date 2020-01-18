@@ -21,35 +21,33 @@ const commonjsOptions = {
   ignoreGlobal: true,
   include: /node_modules/,
   namedExports: {
+    '../../node_modules/lodash/index.js': [
+      'findIndex',
+      'findLastIndex',
+      'identity',
+      'isArray',
+      'isFunction',
+      'isNumber',
+      'noop',
+      'uniqueId',
+    ],
     '../../node_modules/prop-types/index.js': [
+      'array',
       'arrayOf',
       'bool',
-      'element',
       'elementType',
       'func',
+      'instanceOf',
       'node',
       'number',
-      'object',
-      'oneOfType',
       'shape',
+      'string',
     ],
     '../../node_modules/react-is/index.js': [
-      'isContextConsumer',
       'isFragment',
-      'isValidElementType',
-    ],
-    '../../node_modules/react-redux/index.js': [
-      'connect',
-      'Provider',
     ],
     '../../node_modules/redux/index.js': [
-      'applyMiddleware',
       'combineReducers',
-      'compose',
-      'createStore',
-    ],
-    '../../node_modules/redux-thunk/index.js': [
-      'thunk',
     ],
   },
 };

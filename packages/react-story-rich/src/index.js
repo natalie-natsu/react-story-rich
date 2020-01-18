@@ -1,3 +1,2 @@
-export * from './containers';
-export * from './store/data';
-export * from './store/history';
+export { default as Element } from './components/Element';
+export { default as Story } from './components/Story';

@@ -1,6 +1,6 @@
 {
   "name": "@react-story-rich/ui",
-  "version": "1.0.1",
+  "version": "2.0.0-alpha",
   "private": false,
   "author": "Nicolas Rouvière",
   "keywords": [
@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.4",
+    "lodash": "^lodash",
     "prop-types": "^15.7.2"
   },
   "devDependencies": {

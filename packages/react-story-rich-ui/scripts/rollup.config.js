@@ -21,22 +21,21 @@ const commonjsOptions = {
   ignoreGlobal: true,
   include: /node_modules/,
   namedExports: {
+    '../../node_modules/lodash/index.js': [
+      'noop',
+    ],
     '../../node_modules/prop-types/index.js': [
-      'any',
+      'array',
       'arrayOf',
       'bool',
-      'element',
       'elementType',
       'func',
+      'instanceOf',
       'node',
       'number',
       'object',
-      'oneOfType',
       'shape',
       'string',
-    ],
-    '../../node_modules/react-is/index.js': [
-      'ForwardRef',
     ],
   },
 };

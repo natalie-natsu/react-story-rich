@@ -1,8 +1,10 @@
-import React, { Children, cloneElement, isValidElement, useCallback, useEffect, useMemo, useRef } from 'react';
-import { isFragment } from 'react-is';
+import React, { Children, cloneElement, forwardRef, isValidElement, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { isFragment } from 'react-is';
 
-import omit from '../../helpers/omit';
+import uniqueId from 'lodash/uniqueId';
+
+import Navigation from '@react-story-rich/core/classes/Navigation';
 
 function flattenChildren(children, maxDepth, depth = 0) {
   return Children.toArray(children).reduce((acc, node) => {
@@ -10,48 +12,45 @@ function flattenChildren(children, maxDepth, depth = 0) {
       acc.push(...flattenChildren(node.props.children, maxDepth, depth + 1));
     } else if (isValidElement(node)) {
       acc.push(cloneElement(node, {
-        key: `${depth}.${node.key}`,
+        index: acc.length,
+        key: uniqueId('react-story-rich-Element_'),
       }));
     }
     return acc;
   }, []);
 }
 
-export function toFlatArray(children, maxDepth = Infinity) {
+function toFlatArray(children, maxDepth = Infinity) {
   return flattenChildren(children, maxDepth);
 }
 
-function useElements(children, history, location, autoFocus) {
+function useElements(children, history, dispatch, autoFocus) {
+  // Building flat map tree of Elements for establishing uniq locations
   const flatChildren = useMemo(() => toFlatArray(children), [children]);
 
-  const locations = useMemo(
-    () => flatChildren.map(({ props }, from) => props.name || from),
-    [flatChildren],
-  );
+  // Creating the locations map by picking only identity props
+  const locations = useMemo(() => flatChildren.map(({ _id, key, label }, index) => ({
+    _id,
+    index,
+    key,
+    label,
+  })), [flatChildren]);
 
-  const clone = useCallback(({ from }, index, array) => {
-    const tabIndex = 1 + index;
-    const node = flatChildren[from];
-
-    return isValidElement(node) ? cloneElement(node, {
+  const location = useMemo(() => history[history.length - 1].to, [history]);
+  const elements = useMemo(() => history.map(({ to: i }) => (cloneElement(flatChildren[i], {
+    injected: {
       autoFocus,
-      elementNumber: from,
-      enabled: tabIndex >= array.length,
-      key: `story-element-${index}`,
-      locations,
-      tabIndex,
-    }) : null;
-  }, [autoFocus, flatChildren, locations]);
-
-  const elements = useMemo(
-    () => history.concat({ from: location }).map(clone),
-    [clone, history, location],
-  );
+      enabled: location === i,
+      index: i,
+      nav: new Navigation(i, dispatch, locations),
+      tabIndex: i + 1,
+    },
+  }))), [autoFocus, dispatch, flatChildren, history, location, locations]);
 
   return [elements, locations];
 }
 
-const toBottom = (ref) => {
+const scrollToBottom = (ref) => {
   if (ref) {
     window.scrollTo({
       top: ref.current.offsetTop + ref.current.offsetHeight,
@@ -60,34 +59,25 @@ const toBottom = (ref) => {
   }
 };
 
-/**
- * Render its own children Elements according to the history prop.
- *
- * `import Story from '@react-story-rich/core/components/Story';`
- * @param props
- * @return {*}
- * @constructor
- */
-function Story(props) {
+const Story = forwardRef((props, ref) => {
   const {
     autoFocus,
+    autoScroll,
     children,
     component: Component,
+    dispatch,
     history,
-    location,
-    scrollToBottom,
-    ...other
+    ...passThroughProps
   } = props;
 
-  const ref = useRef(null);
-  const [elements] = useElements(children, history, location, autoFocus);
+  const [elements] = useElements(children, history, dispatch, autoFocus);
 
   useEffect(() => {
-    if (scrollToBottom) { toBottom(ref); }
-  }, [history, scrollToBottom]);
+    if (autoScroll) { scrollToBottom(ref); }
+  }, [history, autoScroll, ref]);
 
-  return <Component ref={ref} {...omit(['data', 'dispatch'], other)}>{elements}</Component>;
-}
+  return <Component ref={ref} {...passThroughProps}>{elements}</Component>;
+});
 
 Story.propTypes = {
   /**
@@ -95,6 +85,13 @@ Story.propTypes = {
    */
   autoFocus: PropTypes.bool,
   /**
+   * If set to true, the body will scroll To Bottom
+   * each time a new Element component is enabled.
+   */
+  autoScroll: PropTypes.bool,
+  /**
+   * @ignore
+   *
    * A node of several Element components.
    */
   children: PropTypes.node.isRequired,
@@ -104,15 +101,14 @@ Story.propTypes = {
    */
   component: PropTypes.elementType,
   /**
+   * The dispatcher of your store
+   */
+  dispatch: PropTypes.func.isRequired,
+  /**
    * A collection of actions from the oldest to the most recent.
    * Is a save on its own and can easy be persisted.
    */
   history: PropTypes.arrayOf(PropTypes.shape({
-    /**
-     * The context/state when the action is dispatched.
-     * Useful to navigate through history and retrieve context for some point.
-     */
-    data: PropTypes.objectOf(PropTypes.any),
     /**
      * The current location.
      */
@@ -123,26 +119,16 @@ Story.propTypes = {
     to: PropTypes.number,
     /**
      * The type of the action that were dispatched.
-     * For now there is only a GO_TO action,
-     * but we can imagine way more action that can be inserted in the history.
+     * GO_TO or REWIND_TO.
      */
     type: PropTypes.string,
   })).isRequired,
-  /**
-   * The current location in the all Elements tree.
-   */
-  location: PropTypes.number.isRequired,
-  /**
-   * If set to true, the body will scroll To Bottom
-   * each time a new Element component is enabled.
-   */
-  scrollToBottom: PropTypes.bool,
 };
 
 Story.defaultProps = {
   autoFocus: true,
+  autoScroll: true,
   component: 'main',
-  scrollToBottom: true,
 };
 
 export default Story;
