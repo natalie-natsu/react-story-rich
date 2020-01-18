@@ -1,37 +1,18 @@
 <img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/assets/logo.png" alt="@react-story-rich logo">
 
-@react-story-rich is made for people having knowledge in JavaScript and React
-who doesn't want to lean a "proxy" language to make a narrative game.
-If it is not your case, you can find in this doc
-[links to well known libraries or tools](#Links)
-with the same topic.
+**@react-story-rich renders components according to the history of user actions.** <br/>
+These components are made to navigate from one to another and create a line of event in the DOM.
 
-## Installation
 ```bash
 npm install @react-story-rich/core -S
 // or
 yarn add @react-story-rich/core
 ```
 
-## Usage
-Your story is composed of Core Components:
- * One `<Story>` component doing the rendering
- * Multiple `<Element>`components creating the all book
+<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/assets/example.gif" alt="Example of a CardElement from @react-story-rich">
 
-[See more information about Core Components.](https://wasa42.github.io/react-story-rich/#section-core-components)
-
-* You navigate from `<Element>` to `<Element>` by dispatching actions like `goForward()`
-* You can use Fragments and Knot to organize chapters and sequences
-
-[See more information about Navigation.](https://wasa42.github.io/react-story-rich/#element)
-
-## Example
-Here a non exhaustive example of a mini scene.
-It involves connecting a Story to a store and use CustomElement components
-either provided by composition or inheritance.
-
-````jsx harmony
-import React ,{useMemo}from 'react';
+```jsx harmony
+import React, { useCallback, useMemo } from 'react';
 
 import { createStore, compose, applyMiddleware } from 'redux';
 import { connect, Provider } from 'react-redux';
@@ -41,15 +22,19 @@ import thunk from 'redux-thunk';
 
 import Story from '@react-story-rich/core/components/Story';
 import reducers from '@react-story-rich/core/reducers';
+import resetHistory from '@react-story-rich/core/reducers/history';
 import mapStateToProps from '@react-story-rich/core/reducers/mapStateToProps';
 
 import CardElement from '@react-story-rich/ui/components/CardElement';
 
 const OurStory = connect(mapStateToProps)(({ history, dispatch }) => {
   const actions = useMemo(() => [
-    { children: 'Bow to say hi', onClick: (nav) => nav.goForward() },
-    { children: 'Kill it', onClick: (nav) => nav.goForward() },
+    { children: 'Attack', onClick: (nav) => nav.goForward() },
+    { children: 'Observe', onClick: (nav) => nav.goForward(1) },
   ]);
+
+  const handleReset = useCallback(() => dispatch(resetHistory()), [dispatch, resetHistory]);
+  const resetAction = useMemo(() => ({ children: 'Reset', onClick: handleReset }), [handleReset]);
 
   return (
     <Story
@@ -57,14 +42,20 @@ const OurStory = connect(mapStateToProps)(({ history, dispatch }) => {
       dispatch={dispatch}
       history={history}
     >
-      <CardElement actions={actions} text>
-        A magnificent blue lobster appears, like the Apollo of the Oceans.
-        His whiskers wiggle and his pliers snap frantically.
-        Your stomach is empty. What do you want to do ?
+      <CardElement text actions={actions}>
+        Master said that these woods were home to many monsters,
+        slaying even the most seasoned adventurers,
+        but I never thought I would come across such a beast.
+        Of a bewitched green, its scales reflected the mystical lights of the forest
+        and of his lair I was going to meet it. O dragon, what could I have done to you?
       </CardElement>
-      <CardElement text>
-        You hardly have time to move as its magnificence disappears under your eyes !
-        It was just a mirage caused by your appetite...
+      <CardElement text actions={[resetAction]}>
+        A big flash sucks you towards nothingness.
+        The dragon was as strong as you were reckless.
+      </CardElement>
+      <CardElement text actions={[resetAction]}>
+        With an ounce of intelligence, you can discern the true from the false.
+        This dragon was only the fruit of your imagination.
       </CardElement>
     </Story>
   );
@@ -80,14 +71,5 @@ const App = () => (
 );
 
   <App />
-````
-
-## Links
-* [So What About Inheritance? issue](https://github.com/WaSa42/react-story-rich/issues/5)
-* A non existing link about @react-story-rich
-
-### About alternative or non relative to @react-story-rich
-* [Ink language](https://github.com/inkle/ink)
-* [Twine tool](https://twinery.org/)
-* [Tutorial to combine Ink with React](https://medium.com/journocoders/create-a-news-game-with-ink-react-and-redux-part-i-scripting-in-inky-fba5f681601c)
-* [Myself knowing no one is going to read this](https://i.kym-cdn.com/entries/icons/original/000/026/489/crying.jpg)
+```
+[See CardElement styled component for more information.](http://localhost:6060/#cardelement)

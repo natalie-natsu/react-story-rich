@@ -38,7 +38,7 @@ module.exports = {
         { name: 'useTap', content: 'packages/react-story-rich/src/hooks/useTap/useTap.md' },
       ],
     }, {
-      name: 'Effect',
+      name: 'Effects',
       sections: [
         { name: 'useEnabled', content: 'packages/react-story-rich/src/hooks/useEnabled/useEnabled.md' },
         { name: 'useTimeout', content: 'packages/react-story-rich/src/hooks/useTimeout/useTimeout.md' },
