@@ -37,6 +37,14 @@ const commonjsOptions = {
       'shape',
       'string',
     ],
+    '../../node_modules/react-story-rich/core/index.js': [
+      'Navigation',
+      'useChunk',
+      'useEnabled',
+      'useFocus',
+      'useTap',
+      'useTimeout',
+    ],
   },
 };
 

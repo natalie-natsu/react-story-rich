@@ -1033,6 +1033,26 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
+"@react-story-rich/core@^1.0.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@react-story-rich/core/-/core-1.0.1.tgz#03bc402700337aff12d1fa168b136d112ab9490a"
+  integrity sha512-8e88MeJ7SrqXkt2ZBfJ+K2RkOQHpqDijoBI+hRTOy50TiOCoOQLKxl/D7Q2pGDuFlfvb5TbkI4QDm8r5TTGn4Q==
+  dependencies:
+    "@babel/runtime" "^7.7.4"
+    prop-types "^15.7.2"
+    react-is "^16.12.0"
+    react-redux "^7.1.3"
+    redux "^4.0.4"
+    redux-thunk "^2.3.0"
+
+"@react-story-rich/ui@^1.0.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@react-story-rich/ui/-/ui-1.0.1.tgz#b724acf3204a29594ed389b57afc0a9df7805b55"
+  integrity sha512-3AP7jlYFZjQQSWPioZq4ZehoeJ4DpUxQ0GyB3QZCJutNHQMJf/Q4MUv3KaXx4f8BcKZd0gEv+zvoPUTY8Y5Gpg==
+  dependencies:
+    "@babel/runtime" "^7.7.4"
+    prop-types "^15.7.2"
+
 "@types/anymatch@*":
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/@types/anymatch/-/anymatch-1.3.1.tgz#336badc1beecb9dacc38bea2cf32adf627a8421a"

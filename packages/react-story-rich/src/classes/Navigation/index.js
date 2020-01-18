@@ -5,7 +5,7 @@ import identity from 'lodash/identity';
 import isArray from 'lodash/isArray';
 import isFunction from 'lodash/isFunction';
 
-import Route, { REWIND_TO } from '@react-story-rich/core/classes/Route';
+import Route, { REWIND_TO } from '../Route';
 
 /**
  * Default permissive navigation method

@@ -1,15 +1,11 @@
 ````jsx harmony
-import React, {useCallback,useMemo, useState }from 'react';
+import React,{ useCallback, useMemo } from 'react';
 
 import { createStore, compose, applyMiddleware } from 'redux';
 import { connect, Provider } from 'react-redux';
 
 import logger from 'redux-logger';
 import thunk from 'redux-thunk';
-
-import map from 'lodash/map';
-import pickBy from 'lodash/pickBy';
-import uniqueId from 'lodash/uniqueId';
 
 import Story from '@react-story-rich/core/components/Story';
 import reducers from '@react-story-rich/core/reducers';
@@ -18,59 +14,11 @@ import { resetHistory } from '@react-story-rich/core/reducers/history';
 
 import CardElement from '@react-story-rich/ui/components/CardElement';
 
-import {makeStyles} from '@material-ui/core/styles';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import Switch from '@material-ui/core/Switch';
 
-import mediaSrc from './contemplative-reptile.jpg';
-
-const useInteractions = (handleTrigger) => {
-  const defaultProps = {
-    actions: [
-      { children: 'Use agility', onClick: handleTrigger('AG') },
-      { children: 'Use force', onClick: handleTrigger('FO') },
-      { children: 'Use intelligence', onClick: handleTrigger('INT') },
-    ],
-    media: { image: mediaSrc, style: { height: 200 } },
-    onEnable: handleTrigger('onEnable'),
-    onTap: handleTrigger('onTap'),
-    onTimeout: handleTrigger('onTimeout'),
-    readOnly: true,
-    text: true,
-  };
-
-  const [states, setStates] = useState({
-    actions: defaultProps.actions,
-    media: false,
-    onEnable: false,
-    onTap: false,
-    onTimeout: false,
-    readOnly: false,
-    text: defaultProps.text,
-  });
-
-  const handleChange = name => event => {
-    const state = event.target.checked ? defaultProps[name] : false;
-    setStates({ ...states, [name]: state });
-  };
-
-  const switches = map(states, (state, name) => (
-    <Grid component={Grid} item xs={6} sm={3} key={uniqueId(name)}>
-      <FormControlLabel label={name} control={
-        <Switch
-          checked={state !== false}
-          onChange={handleChange(name)}
-          value={name}
-          inputProps={{ 'aria-label': `${name} checkbox` }}
-        />
-      } />
-    </Grid>
-  ));
-
-  return [switches, pickBy(states, (state) => state !== false)];
-};
+import useInteractions from '../../hooks/useInteractions';
 
 const useStyles = makeStyles((theme) => ({
   interactions: {

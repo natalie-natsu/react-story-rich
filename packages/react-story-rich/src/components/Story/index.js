@@ -4,7 +4,7 @@ import { isFragment } from 'react-is';
 
 import uniqueId from 'lodash/uniqueId';
 
-import Navigation from '@react-story-rich/core/classes/Navigation';
+import Navigation from '../../classes/Navigation';
 
 function flattenChildren(children, maxDepth, depth = 0) {
   return Children.toArray(children).reduce((acc, node) => {

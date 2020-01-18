@@ -2,13 +2,13 @@ import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
-import Navigation from '@react-story-rich/core/classes/Navigation';
+import Navigation from '../../classes/Navigation';
 
-import useEnabled from '@react-story-rich/core/hooks/useEnabled';
-import useTimeout from '@react-story-rich/core/hooks/useTimeout';
-import useTap from '@react-story-rich/core/hooks/useTap';
-import useFocus from '@react-story-rich/core/hooks/useFocus';
-import useChunk from '@react-story-rich/core/hooks/useChunk';
+import useEnabled from '../../hooks/useEnabled';
+import useTimeout from '../../hooks/useTimeout';
+import useTap from '../../hooks/useTap';
+import useFocus from '../../hooks/useFocus';
+import useChunk from '../../hooks/useChunk';
 
 const Element = forwardRef((props, ref) => {
   const {
