@@ -72,4 +72,4 @@ const App = () => (
 
   <App />
 ```
-[See CardElement styled component for more information.](http://localhost:6060/#cardelement)
+[See CardElement styled component for more information.](https://wasa42.github.io/react-story-rich/#cardelement)
