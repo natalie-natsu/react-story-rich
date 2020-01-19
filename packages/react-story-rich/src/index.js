@@ -1,6 +1,9 @@
 export { default as Navigation } from './classes/Navigation';
 export { default as Route } from './classes/Route';
 
+export { default as Tree } from './classes/Tree';
+export * from './classes/Tree';
+
 export { default as Element } from './components/Element';
 export { default as Story } from './components/Story';
 
