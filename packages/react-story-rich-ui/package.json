@@ -1,6 +1,6 @@
 {
   "name": "@react-story-rich/ui",
-  "version": "2.0.0-alpha",
+  "version": "2.0.0-alpha.2",
   "private": false,
   "author": "Nicolas Rouvière",
   "keywords": [
@@ -30,15 +30,16 @@
     "test": "cd ../../ && cross-env NODE_ENV=test jest 'packages/react-story-rich-ui/**/*.test.js' --exclude '**/node_modules/**'"
   },
   "peerDependencies": {
+    "@react-story-rich/core": "^2.0.0-alpha.1",
     "@material-ui/core": "^4.7.1",
-    "@react-story-rich/core": "^2.0.0-alpha",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
   },
   "dependencies": {
     "@babel/runtime": "^7.7.4",
     "lodash": "^4.17.15",
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "react-is": "^16.12.0"
   },
   "devDependencies": {
     "react-test-renderer": "^16.12.0"

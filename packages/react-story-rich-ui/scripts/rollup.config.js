@@ -37,6 +37,9 @@ const commonjsOptions = {
       'shape',
       'string',
     ],
+    '../../node_modules/react-is/index.js': [
+      'ForwardRef',
+    ],
     '../../node_modules/react-story-rich/core/index.js': [
       'Navigation',
       'useChunk',

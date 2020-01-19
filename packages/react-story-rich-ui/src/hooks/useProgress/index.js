@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import useTimeout from '@react-story-rich/core/hooks/useTimeout';
-import Progress from '@react-story-rich/ui/components/Progress';
+
+import Progress from '../../components/Progress';
 
 const useProgress = (onTimeout, timeout, { enabled, nav }, hasActions) => {
   const hasProgress = useMemo(() => !!timeout && hasActions, [hasActions, timeout]);
