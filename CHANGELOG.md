@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 `### Added ### Changed ### Removed ### Fixed`
 
-## [2.0.0-alpha] - 2020-01-18
+## [2.0.0] - 2020-01-20
 v1.0.0 was release too fast but was none the less working well.
 
 ### Removed
@@ -19,20 +19,20 @@ v1.0.0 was release too fast but was none the less working well.
 - v.2.0.0 has really improved CustomElements and the way to display it
 - Improve documentation
 - Enhance `<Story />` and Story prop `scrollToBottom` became `autoScroll`
+- Change `<Story />` way of rendering using now a Tree instance
 
 ### Added
 - lodash as dependency
 - Hooks !
   - useActions
-  - useChunk
   - useEnabled
   - useFocus
   - useProgress
   - useTap
   - useTimeout
+- Tree Class
 - Navigation Class
 - Route Class
-
 
 ## [1.0.1] - 2019-12-29
 ### Fixed
