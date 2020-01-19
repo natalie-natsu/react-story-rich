@@ -2,17 +2,9 @@
 * `Your name here` | contributor
 
 ## Improvements and todos
-* More examples in the documentation
-  * Audio
-  * Theme customization
-  * Routing
-  * Persistence
-  * Translations
-  * Virtualized Story
-  * Deployment on GH Pages/Web, Mobile and OSs
-* Accessibility
+* Fill the void in the doc
+* Accessibility enhancement
 * XBox controller integration (is that possible ?)
-* Issue templates
 * Tools for editing and debugging Elements
 * Obviously tests (sorry for not implementing them sooner 🤷)
 * CI/CD
