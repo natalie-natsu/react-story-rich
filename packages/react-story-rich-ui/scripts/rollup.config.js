@@ -21,6 +21,9 @@ const commonjsOptions = {
   ignoreGlobal: true,
   include: /node_modules/,
   namedExports: {
+    '../../node_modules/clsx/index.js': [
+      'clsx',
+    ],
     '../../node_modules/lodash/index.js': [
       'noop',
     ],

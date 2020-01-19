@@ -38,6 +38,7 @@ const OurStory = connect(mapStateToProps)(({ history, dispatch }) => {
 
   return (
     <Story
+      autoFocus={false}
       autoScroll={false}
       dispatch={dispatch}
       history={history}

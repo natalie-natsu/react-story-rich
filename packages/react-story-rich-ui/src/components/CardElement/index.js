@@ -19,6 +19,7 @@ import useActions from '../../hooks/useActions';
 import useProgress from '../../hooks/useProgress';
 
 import CardElementArea from '../CardElementArea';
+import useTimeout from '../../../../react-story-rich/src/hooks/useTimeout';
 
 const useStyles = makeStyles((theme) => ({
   cardContent: {
@@ -57,6 +58,7 @@ const CardElement = forwardRef((props, ref) => {
   useChunk(chunk, injected);
   useEnabled(onEnable, injected);
   useFocus(elementRef, injected);
+  useTimeout(onTimeout, timeout, injected);
 
   return (
     <CardElementArea

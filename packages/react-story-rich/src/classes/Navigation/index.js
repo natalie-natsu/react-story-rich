@@ -44,7 +44,7 @@ class Navigation {
 
   static isFromValid = (from) => {
     if (typeof from !== 'number') {
-      throw Error(`dispatch should be type number. Got ${typeof from}`);
+      throw Error(`from should be type number. Got ${typeof from}`);
     }
 
     return from;
