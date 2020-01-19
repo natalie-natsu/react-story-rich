@@ -1,83 +1,43 @@
-<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/assets/logo.png" alt="@react-story-rich logo">
+@react-story-rich helps to create narrative games with javascript basics.
 
-**@react-story-rich renders components according to the history of user actions.** <br/>
-These components are made to navigate from one to another and create a line of event in the DOM.
+Contrary to
+[Ink](https://github.com/inkle/ink) or
+[Twine](https://twinery.org/),
+you don't have to learn a "proxy" language to get started.
+On the other hand, the library remains sufficiently low level not to restrict itself in the possibilities.
+This includes:
+* A tree API to parse simple story definitions in JS or even in JSON
+* A navigation API to navigate through a Story Node to another
+* A history reducer to keep tracks of user actions and render a timeline
+* Components & hooks to handle most common interactions
 
+<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/assets/example.gif" alt="Example of a CardElement from @react-story-rich">
+
+## Installation
 ```bash
 npm install @react-story-rich/core -S
 // or
 yarn add @react-story-rich/core
 ```
 
-<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/assets/example.gif" alt="Example of a CardElement from @react-story-rich">
+## Getting started
+With @react-story-rich, you can start with a template based on create-react-app already including the following topics:
+* [Working with translations](https://wasa42.github.io/react-story-rich/#section-translations)
+* [Dark mode & theming](https://wasa42.github.io/react-story-rich/#section-theming)
+* [Local saves & persistence](https://wasa42.github.io/react-story-rich/#section-persistence)
+* [Optimizing performance with virtualization](https://wasa42.github.io/react-story-rich/#section-virtualization)
+* [Game oriented UI](https://wasa42.github.io/react-story-rich/#section-game-ui)
+* [Hash Routing](https://wasa42.github.io/react-story-rich/#section-hash-routing)
+* [Deploy to gh-pages](https://wasa42.github.io/react-story-rich/#section-deployment)
 
-```jsx harmony
-import React, { useCallback } from 'react';
+Find the template on GitHub: [react-story-rich-template](https://github.com/WaSa42/react-story-rich-template)
 
-import { createStore, compose, applyMiddleware } from 'redux';
-import { connect, Provider } from 'react-redux';
+<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/assets/settings-view.png" alt="Settings view template with dark mode on">
 
-import logger from 'redux-logger';
-import thunk from 'redux-thunk';
+## Go further
+To go further, you may be interested to create specific components like a dice roller for example
+or puzzle games or a Pokémon like battle scene, everything is possible.
 
-import Story from '@react-story-rich/core/components/Story';
-import Tree from '@react-story-rich/core/classes/Tree';
-
-import reducers from '@react-story-rich/core/reducers';
-import { resetHistory } from '@react-story-rich/core/reducers/history';
-import mapStateToProps from '@react-story-rich/core/reducers/mapStateToProps';
-
-import CardElement from '@react-story-rich/ui/components/CardElement';
-import Button from '@material-ui/core/Button';
-
-const root = [
-  {
-    children: `Master said that these woods were home to many monsters,
-    slaying even the most seasoned adventurers,
-    but I never thought I would come across such a beast.
-    Of a bewitched green, its scales reflected the mystical lights of the forest
-    and of his lair I was going to meet it. O dragon, what could I have done to you?`,
-    text: true,
-    actions: [
-      { children: 'Attack', onClick: (nav) => nav.goForward() },
-      { children: 'Observe', onClick: (nav) => nav.goForward(1) },
-    ],
-  },
-
-  `A big flash sucks you towards nothingness.
-   The dragon was as strong as you were reckless.`,
-
-  `With an ounce of intelligence, you can discern the true from the false.
-   This dragon was only the fruit of your imagination.`,
-];
-
-const OurStory = connect(mapStateToProps)(({ history, dispatch }) => {
-  const handleReset = useCallback(() => dispatch(resetHistory()), [dispatch, resetHistory]);
-
-  return (
-    <>
-      <Story
-        autoFocus={false}
-        autoScroll={false}
-        defaultNodeComponent={CardElement}
-        dispatch={dispatch}
-        history={history}
-        tree={new Tree(root)}
-      />
-      <Button onClick={handleReset}>Reset</Button>
-    </>
-  );
-});
-
-const middleWares = [thunk, logger];
-const store = createStore(reducers, compose(applyMiddleware(...middleWares)));
-
-const App = () => (
-  <Provider store={store}>
-    <OurStory />
-  </Provider>
-);
-
-  <App />
-```
-[See CardElement styled component for more information.](https://wasa42.github.io/react-story-rich/#cardelement)
+Check the documentation for how create your own custom components with hooks:
+* [How to create custom components](https://wasa42.github.io/react-story-rich/#section-custom-component)
+* [Use hooks for focus and interactions](https://wasa42.github.io/react-story-rich/#section-hooks)

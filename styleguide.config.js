@@ -9,7 +9,17 @@ module.exports = {
     name: 'react-story-rich',
     content: 'README.md',
     exampleMode: 'expand', // 'hide' | 'collapse' | 'expand'
-  }, {
+  },
+  { name: 'Translations', content: 'documentation/TRANSLATIONS.md' },
+  { name: 'Theming', content: 'documentation/THEMING.md' },
+  { name: 'Persistence', content: 'documentation/PERSISTENCE.md' },
+  { name: 'Virtualization', content: 'documentation/VIRTUALIZATION.md' },
+  { name: 'Hash routing', content: 'documentation/ROUTING.md' },
+  { name: 'Game UI', content: 'documentation/GAME_UI.md' },
+  { name: 'Deployment', content: 'documentation/DEPLOYMENT.md' },
+
+  { name: 'Custom Element', content: 'documentation/CUSTOM_COMPONENT.md' },
+  {
     name: 'Styled Components',
     content: 'packages/react-story-rich-ui/README.md',
     components: 'packages/react-story-rich-ui/src/components/+([A-Z]*)/*.js',
@@ -25,6 +35,7 @@ module.exports = {
       sections: [
         { name: 'Navigation', content: 'packages/react-story-rich/src/classes/Navigation/Navigation.md' },
         { name: 'Route', content: 'packages/react-story-rich/src/classes/Route/Route.md' },
+        { name: 'Tree', content: 'packages/react-story-rich/src/classes/Tree/Tree.md' },
       ],
     }],
   }, {
@@ -42,11 +53,6 @@ module.exports = {
       sections: [
         { name: 'useEnabled', content: 'packages/react-story-rich/src/hooks/useEnabled/useEnabled.md' },
         { name: 'useTimeout', content: 'packages/react-story-rich/src/hooks/useTimeout/useTimeout.md' },
-      ],
-    }, {
-      name: 'Utils',
-      sections: [
-        { name: 'useChunk', content: 'packages/react-story-rich/src/hooks/useChunk/useChunk.md' },
       ],
     }],
   }, {
