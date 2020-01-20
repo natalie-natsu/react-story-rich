@@ -32,7 +32,7 @@ With @react-story-rich, you can start with a template based on create-react-app 
 
 Find the template on GitHub: [react-story-rich-template](https://github.com/WaSa42/react-story-rich-template)
 
-<img src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/assets/settings-view.png" alt="Settings view template with dark mode on">
+<img style="max-width: 100%;" src="https://raw.githubusercontent.com/wasa42/react-story-rich/HEAD/documentation/assets/settings-view.png" alt="Settings view template with dark mode on">
 
 ## Go further
 To go further, you may be interested to create specific components like a dice roller for example
