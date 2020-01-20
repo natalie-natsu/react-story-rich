@@ -1,54 +1,13 @@
-import React, { Children, cloneElement, forwardRef, isValidElement, useEffect, useMemo } from 'react';
+import React, { forwardRef, isValidElement, useCallback, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { isFragment } from 'react-is';
 
-import uniqueId from 'lodash/uniqueId';
+import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
+import last from 'lodash/last';
 
+import Tree from '../../classes/Tree';
+import Element from '../Element';
 import Navigation from '../../classes/Navigation';
-
-function flattenChildren(children, maxDepth, depth = 0) {
-  return Children.toArray(children).reduce((acc, node) => {
-    if (isFragment(node) && depth < maxDepth) {
-      acc.push(...flattenChildren(node.props.children, maxDepth, depth + 1));
-    } else if (isValidElement(node)) {
-      acc.push(cloneElement(node, {
-        index: acc.length,
-        key: uniqueId('react-story-rich-Element_'),
-      }));
-    }
-    return acc;
-  }, []);
-}
-
-function toFlatArray(children, maxDepth = Infinity) {
-  return flattenChildren(children, maxDepth);
-}
-
-function useElements(children, history, dispatch, autoFocus) {
-  // Building flat map tree of Elements for establishing uniq locations
-  const flatChildren = useMemo(() => toFlatArray(children), [children]);
-
-  // Creating the locations map by picking only identity props
-  const locations = useMemo(() => flatChildren.map(({ _id, key, label }, index) => ({
-    _id,
-    index,
-    key,
-    label,
-  })), [flatChildren]);
-
-  const location = useMemo(() => history[history.length - 1].to, [history]);
-  const elements = useMemo(() => history.map(({ to: i }) => (cloneElement(flatChildren[i], {
-    injected: {
-      autoFocus,
-      enabled: location === i,
-      index: i,
-      nav: new Navigation(i, dispatch, locations),
-      tabIndex: i + 1,
-    },
-  }))), [autoFocus, dispatch, flatChildren, history, location, locations]);
-
-  return [elements, locations];
-}
 
 const scrollToBottom = (ref) => {
   if (ref) {
@@ -63,20 +22,68 @@ const Story = forwardRef((props, ref) => {
   const {
     autoFocus,
     autoScroll,
-    children,
     component: Component,
+    defaultNodeComponent,
     dispatch,
     history,
+    tree: root,
     ...passThroughProps
   } = props;
 
-  const [elements] = useElements(children, history, dispatch, autoFocus);
+  const currentLocation = useMemo(() => last(history).to, [history]);
+
+  const trunk = useMemo(() => root.toTrunk(), [root]);
+
+  const getNode = useCallback((key) => trunk.get(key), [trunk]);
+
+  const isEnabled = useCallback((key) => key === currentLocation, [currentLocation]);
+
+  const getNavigation = useCallback(({ key }) => (
+    new Navigation(key, dispatch)
+  ), [dispatch]);
+
+  const getNodeComponent = useCallback((node) => {
+    if (isString(node)) { return [defaultNodeComponent, { text: true, children: node }]; }
+
+    const { component, ...nodeProps } = node;
+
+    if (isEmpty(component)) { return [defaultNodeComponent, nodeProps]; }
+
+    const isValid = isValidElement(component);
+
+    if (!isValid) {
+      // eslint-disable-next-line no-console
+      console.warn(`node.component is not a valid React Element --> fallback to defaultNodeComponent`);
+    }
+
+    return [isValid ? component : defaultNodeComponent, nodeProps];
+  }, [defaultNodeComponent]);
 
   useEffect(() => {
     if (autoScroll) { scrollToBottom(ref); }
   }, [history, autoScroll, ref]);
 
-  return <Component ref={ref} {...passThroughProps}>{elements}</Component>;
+  return (
+    <Component ref={ref} {...passThroughProps}>
+      {history.map(({ to: key }) => {
+        const { node, location } = getNode(key);
+        const nav = getNavigation(location);
+
+        const [NodeComponent, nodeProps] = getNodeComponent(node);
+
+        const injected = {
+          autoFocus,
+          enabled: isEnabled(key),
+          key,
+          location,
+          tabIndex: key + 1,
+          nav,
+        };
+
+        return <NodeComponent key={location.label} injected={injected} {...nodeProps} />;
+      })}
+    </Component>
+  );
 });
 
 Story.propTypes = {
@@ -90,16 +97,14 @@ Story.propTypes = {
    */
   autoScroll: PropTypes.bool,
   /**
-   * @ignore
-   *
-   * A node of several Element components.
-   */
-  children: PropTypes.node.isRequired,
-  /**
    * The component used for the root node.
    * Either a string to use a DOM element or a component.
    */
   component: PropTypes.elementType,
+  /**
+   * The component to use by default to render a node in the tree.
+   */
+  defaultNodeComponent: PropTypes.elementType,
   /**
    * The dispatcher of your store
    */
@@ -123,12 +128,18 @@ Story.propTypes = {
      */
     type: PropTypes.string,
   })).isRequired,
+  /**
+   * An instance of a Tree
+   * See Tree API
+   */
+  tree: PropTypes.instanceOf(Tree).isRequired,
 };
 
 Story.defaultProps = {
   autoFocus: true,
   autoScroll: true,
   component: 'main',
+  defaultNodeComponent: Element,
 };
 
 export default Story;

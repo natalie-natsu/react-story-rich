@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
 import Navigation from '@react-story-rich/core/classes/Navigation';
-import useChunk from '@react-story-rich/core/hooks/useChunk';
 import useEnabled from '@react-story-rich/core/hooks/useEnabled';
 import useFocus from '@react-story-rich/core/hooks/useFocus';
 import useTap from '@react-story-rich/core/hooks/useTap';
+import useTimeout from '@react-story-rich/core/hooks/useTimeout';
 
 import { makeStyles } from '@material-ui/core/styles';
 import CardActions from '@material-ui/core/CardActions';
@@ -19,6 +19,7 @@ import useActions from '../../hooks/useActions';
 import useProgress from '../../hooks/useProgress';
 
 import CardElementArea from '../CardElementArea';
+import Progress from '../Progress';
 
 const useStyles = makeStyles((theme) => ({
   cardContent: {
@@ -34,7 +35,6 @@ const CardElement = forwardRef((props, ref) => {
   const {
     actions,
     children,
-    chunk,
     injected,
     media,
     onEnable,
@@ -50,13 +50,13 @@ const CardElement = forwardRef((props, ref) => {
   const elementRef = useRef(null);
   const [handleTap, handleKeyPress] = useTap(onTap, readOnly, injected);
   const [hasActions, Actions] = useActions(actions, injected);
-  const [hasProgress, Progress] = useProgress(onTimeout, timeout, injected, hasActions);
+  const hasProgress = useProgress(onTimeout, timeout, injected, hasActions);
 
   useImperativeHandle(ref, () => ({ focus: elementRef.current.focus }));
 
-  useChunk(chunk, injected);
   useEnabled(onEnable, injected);
   useFocus(elementRef, injected);
+  useTimeout(onTimeout, timeout, injected);
 
   return (
     <CardElementArea
@@ -75,7 +75,13 @@ const CardElement = forwardRef((props, ref) => {
         {text ? <Typography align="center" {...typographyProps}>{children}</Typography> : children}
       </CardContent>
       {hasActions && <CardActions>{Actions}</CardActions>}
-      {hasProgress && Progress}
+      {hasProgress && (
+        <Progress
+          timeout={timeout}
+          onTimeout={onTimeout}
+          enabled={injected.enabled}
+        />
+      )}
     </CardElementArea>
   );
 });
@@ -92,14 +98,6 @@ CardElement.propTypes = {
    */
   children: PropTypes.node.isRequired,
   /**
-   * Chunk of locations to reduce the cost of navigation in big story trees.
-   * For example, if you know all possible next locations to this element
-   * you can use that collection to improve the search.
-   *
-   * Of course prefer goForward(skip) nav action for the best performance.
-   */
-  chunk: PropTypes.array,
-  /**
    * A set of props injected by the Story renderer
    */
   injected: PropTypes.shape({
@@ -114,7 +112,7 @@ CardElement.propTypes = {
     /**
      * The location of the Element in the story tree
      */
-    index: PropTypes.number.isRequired,
+    key: PropTypes.number.isRequired,
     /**
      * A set of navigation methods
      * @see Navigation Class description
@@ -166,7 +164,6 @@ CardElement.propTypes = {
 
 CardElement.defaultProps = {
   actions: [],
-  chunk: [],
   injected: undefined,
   media: null,
   onEnable: noop,

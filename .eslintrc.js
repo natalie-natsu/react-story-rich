@@ -23,6 +23,7 @@ module.exports = {
     'curly': ['error', 'all'],
     'consistent-this': ['error', 'self'],
     'linebreak-style': 'off', // Doesn't play nicely with Windows
+    'quotes': ["error", "single", { "allowTemplateLiterals": true }],
     'no-alert': 'error',
     // Strict, airbnb is using warn
     'no-console': 'error',

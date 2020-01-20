@@ -8,11 +8,9 @@ import useEnabled from '../../hooks/useEnabled';
 import useTimeout from '../../hooks/useTimeout';
 import useTap from '../../hooks/useTap';
 import useFocus from '../../hooks/useFocus';
-import useChunk from '../../hooks/useChunk';
 
 const Element = forwardRef((props, ref) => {
   const {
-    chunk,
     component: Component,
     injected,
     onEnable,
@@ -26,7 +24,6 @@ const Element = forwardRef((props, ref) => {
   const elementRef = useFocus(ref, injected);
   const [handleTap, handleKeyPress] = useTap(onTap, readOnly, injected);
 
-  useChunk(chunk, injected);
   useEnabled(onEnable, injected);
   useTimeout(onTimeout, timeout, injected);
 
@@ -42,14 +39,6 @@ const Element = forwardRef((props, ref) => {
 });
 
 Element.propTypes = {
-  /**
-   * Chunk of locations to reduce the cost of navigation in big story trees.
-   * For example, if you know all possible next locations to this element
-   * you can use that collection to improve the search.
-   *
-   * Of course prefer goForward(skip) nav action for the best performance.
-   */
-  chunk: PropTypes.array,
   /**
    * The component used for the root node.
    * Either a string to use a DOM element or a component.
@@ -71,7 +60,7 @@ Element.propTypes = {
     /**
      * The location of the Element in the story tree
      */
-    index: PropTypes.number.isRequired,
+    key: PropTypes.number.isRequired,
     /**
      * A set of navigation methods
      * @see Navigation Class description
@@ -108,7 +97,6 @@ Element.propTypes = {
 };
 
 Element.defaultProps = {
-  chunk: [],
   component: 'div',
   injected: undefined,
   onEnable: noop,
