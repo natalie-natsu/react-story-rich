@@ -1047,6 +1047,13 @@
     react-is "^16.8.0"
     react-transition-group "^4.3.0"
 
+"@material-ui/icons@^4.5.1":
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/@material-ui/icons/-/icons-4.5.1.tgz#6963bad139e938702ece85ca43067688018f04f8"
+  integrity sha512-YZ/BgJbXX4a0gOuKWb30mBaHaoXRqPanlePam83JQPZ/y4kl+3aW0Wv9tlR70hB5EGAkEJGW5m4ktJwMgxQAeA==
+  dependencies:
+    "@babel/runtime" "^7.4.4"
+
 "@material-ui/styles@^4.8.2":
   version "4.8.2"
   resolved "https://registry.yarnpkg.com/@material-ui/styles/-/styles-4.8.2.tgz#841acbc4314accbe82a45cb1feb758d47448c802"
@@ -1107,10 +1114,10 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
-"@react-story-rich/core@2.0.0-alpha.1":
-  version "2.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/@react-story-rich/core/-/core-2.0.0-alpha.1.tgz#71b80aed9464f6fa7dab13c11bf47c4c821d4025"
-  integrity sha512-iy5IcBwSfd1k/o19OGZ6O8nhZdDV7Fz/4S0mm0WpSXzDenQ6jZ26Qy+ElEhmOs3ElSqE9XvcLLB+e2Mntpa1kg==
+"@react-story-rich/core@2.0.0-beta":
+  version "2.0.0-beta"
+  resolved "https://registry.yarnpkg.com/@react-story-rich/core/-/core-2.0.0-beta.tgz#879d31d4743d50344b15fe3e8ec6b3b18ace2d33"
+  integrity sha512-CsMPDI05zhNNAXL/JopHiRYiEsSr1XxJ4pLzZ3oSs2N5Keo2WM1YH/rb48JXFsdBy/PoquSR/SFIIuSL8MN9iw==
   dependencies:
     "@babel/runtime" "^7.7.4"
     lodash "^4.17.15"

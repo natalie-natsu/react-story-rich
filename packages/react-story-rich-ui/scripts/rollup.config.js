@@ -25,7 +25,10 @@ const commonjsOptions = {
       'clsx',
     ],
     '../../node_modules/lodash/index.js': [
+      'isEmpty',
       'noop',
+      'pickBy',
+      'uniqueId',
     ],
     '../../node_modules/prop-types/index.js': [
       'array',
@@ -45,7 +48,6 @@ const commonjsOptions = {
     ],
     '../../node_modules/react-story-rich/core/index.js': [
       'Navigation',
-      'useChunk',
       'useEnabled',
       'useFocus',
       'useTap',
