@@ -9,7 +9,7 @@ import useTimeout from '../../hooks/useTimeout';
 import useTap from '../../hooks/useTap';
 import useFocus from '../../hooks/useFocus';
 
-const Element = forwardRef((props, ref) => {
+const Element = forwardRef(function Element(props, ref) {
   const {
     component: Component,
     injected,
@@ -35,7 +35,6 @@ const Element = forwardRef((props, ref) => {
       onClick={handleTap}
       onKeyPress={handleKeyPress}
       ref={elementRef}
-      tabIndex={injected.tabIndex}
       {...passThroughProps}
     />
   );
@@ -69,10 +68,6 @@ Element.propTypes = {
      * @see Navigation Class description
      */
     nav: PropTypes.instanceOf(Navigation).isRequired,
-    /**
-     * The location of the Element in the DOM tree or (index of Element in history + 1)
-     */
-    tabIndex: PropTypes.number.isRequired,
   }),
   /**
    * Callback triggered when Element is enabled by the Story.
