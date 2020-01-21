@@ -59,9 +59,9 @@ const OurStory = connect(mapStateToProps)(({ history, dispatch }) => {
       <Story
         autoFocus={false}
         autoScroll={false}
-        defaultNodeComponent={CardElement}
         dispatch={dispatch}
         history={history}
+        nodeComponent={CardElement}
         tree={new Tree(root)}
       />
       <Grid container component={Paper} className={classes.interactions}>

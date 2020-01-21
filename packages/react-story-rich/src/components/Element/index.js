@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
@@ -21,10 +21,13 @@ const Element = forwardRef((props, ref) => {
     ...passThroughProps
   } = props;
 
-  const elementRef = useFocus(ref, injected);
+  const elementRef = useRef(null);
   const [handleTap, handleKeyPress] = useTap(onTap, readOnly, injected);
 
+  useImperativeHandle(ref, () => ({ focus: elementRef.current.focus }));
+
   useEnabled(onEnable, injected);
+  useFocus(elementRef, injected);
   useTimeout(onTimeout, timeout, injected);
 
   return (
