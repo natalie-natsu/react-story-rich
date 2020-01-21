@@ -6,11 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 `### Added ### Changed ### Removed ### Fixed`
 
-## [2.0.0] - 2020-01-20
+## [2.0.0] - 2020-01-21
 v1.0.0 was release too fast but was none the less working well.
 
 ### Removed
-- v1.0.0 was release too fast but was none the less working well
 - location and dataContext reducers (were useless and after reflexion were not relevany)
 - `<Landing />` & `<Layout />` (were not relevant)
 - `<Provider />` (was not relevant)

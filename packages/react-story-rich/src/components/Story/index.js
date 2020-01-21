@@ -18,14 +18,40 @@ const scrollToBottom = (ref) => {
   }
 };
 
+export const nodeRenderer = (node, nav, defaultComponent = Element) => {
+  // A Pipe
+  if (isString(node)) {
+    return [defaultComponent, {
+      text: true,
+      children: node,
+      onTap: ({ goForward }) => goForward(),
+    }];
+  }
+
+  const { component, ...nodeProps } = node;
+
+  if (isEmpty(component)) { return [defaultComponent, nodeProps]; }
+
+  const isValid = isValidElement(component);
+
+  if (!isValid) {
+    // eslint-disable-next-line no-console
+    console.warn(`node.component is not a valid React Element --> fallback to defaultComponent`);
+  }
+
+  return [isValid ? component : defaultComponent, nodeProps];
+};
+
+
 const Story = forwardRef((props, ref) => {
   const {
     autoFocus,
     autoScroll,
     component: Component,
-    defaultNodeComponent,
     dispatch,
     history,
+    nodeComponent,
+    nodeRenderer: renderer,
     tree: root,
     ...passThroughProps
   } = props;
@@ -42,23 +68,6 @@ const Story = forwardRef((props, ref) => {
     new Navigation(key, dispatch)
   ), [dispatch]);
 
-  const getNodeComponent = useCallback((node) => {
-    if (isString(node)) { return [defaultNodeComponent, { text: true, children: node }]; }
-
-    const { component, ...nodeProps } = node;
-
-    if (isEmpty(component)) { return [defaultNodeComponent, nodeProps]; }
-
-    const isValid = isValidElement(component);
-
-    if (!isValid) {
-      // eslint-disable-next-line no-console
-      console.warn(`node.component is not a valid React Element --> fallback to defaultNodeComponent`);
-    }
-
-    return [isValid ? component : defaultNodeComponent, nodeProps];
-  }, [defaultNodeComponent]);
-
   useEffect(() => {
     if (autoScroll) { scrollToBottom(ref); }
   }, [history, autoScroll, ref]);
@@ -69,7 +78,7 @@ const Story = forwardRef((props, ref) => {
         const { node, location } = getNode(key);
         const nav = getNavigation(location);
 
-        const [NodeComponent, nodeProps] = getNodeComponent(node);
+        const [NodeComponent, nodeProps] = renderer(node, nav, nodeComponent);
 
         const injected = {
           autoFocus,
@@ -102,10 +111,6 @@ Story.propTypes = {
    */
   component: PropTypes.elementType,
   /**
-   * The component to use by default to render a node in the tree.
-   */
-  defaultNodeComponent: PropTypes.elementType,
-  /**
    * The dispatcher of your store
    */
   dispatch: PropTypes.func.isRequired,
@@ -129,6 +134,15 @@ Story.propTypes = {
     type: PropTypes.string,
   })).isRequired,
   /**
+   * A valid element type for default node rendering
+   */
+  nodeComponent: PropTypes.elementType,
+  /**
+   * A function returning [component, props]
+   * for Story rendering.
+   */
+  nodeRenderer: PropTypes.func,
+  /**
    * An instance of a Tree
    * See Tree API
    */
@@ -139,7 +153,8 @@ Story.defaultProps = {
   autoFocus: true,
   autoScroll: true,
   component: 'main',
-  defaultNodeComponent: Element,
+  nodeComponent: Element,
+  nodeRenderer,
 };
 
 export default Story;
