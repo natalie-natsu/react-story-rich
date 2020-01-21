@@ -1,6 +1,6 @@
 {
   "name": "react-story-rich",
-  "version": "2.0.0-beta",
+  "version": "2.0.0-beta.2",
   "private": true,
   "peerDependencies": {
     "react": "*",
