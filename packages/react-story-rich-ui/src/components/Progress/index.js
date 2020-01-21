@@ -6,7 +6,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 const INTERVAL = 200;
 const COMPLETED = 100;
 
-const Progress = forwardRef(({ timeout, enabled }, ref) => {
+const Progress = forwardRef(function Progress({ timeout, enabled }, ref) {
   const [completed, setCompleted] = useState(enabled ? 0 : COMPLETED);
   const [timer, setTimer] = useState(null);
 

@@ -1,6 +1,7 @@
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 
+import clsx from 'clsx';
 import noop from 'lodash/noop';
 
 import Navigation from '@react-story-rich/core/classes/Navigation';
@@ -10,6 +11,8 @@ import useTap from '@react-story-rich/core/hooks/useTap';
 import useTimeout from '@react-story-rich/core/hooks/useTimeout';
 
 import { makeStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -18,23 +21,30 @@ import Typography from '@material-ui/core/Typography';
 import useActions from '../../hooks/useActions';
 import useProgress from '../../hooks/useProgress';
 
-import CardElementArea from '../CardElementArea';
 import Progress from '../Progress';
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    marginBottom: theme.spacing(2),
+  },
   cardContent: {
     '&:last-child': {
       padding: theme.spacing(2),
     },
   },
+  cardActions: {
+    flexWrap: 'wrap',
+    justifyContent: 'space-evenly',
+  },
 }));
 
-const CardElement = forwardRef((props, ref) => {
+const CardElement = forwardRef(function CardElement(props, ref) {
   const classes = useStyles();
 
   const {
     actions,
     children,
+    className,
     injected,
     media,
     onEnable,
@@ -58,23 +68,34 @@ const CardElement = forwardRef((props, ref) => {
   useFocus(elementRef, injected);
   useTimeout(onTimeout, timeout, injected);
 
+  const disabled = useMemo(() => (
+    !injected.enabled
+    || readOnly
+    || hasActions
+  ), [hasActions, injected.enabled, readOnly]);
+
   return (
-    <CardElementArea
-      enabled={injected.enabled}
-      hasActions={hasActions}
-      onTap={onTap}
-      onClick={handleTap}
-      onKeyPress={handleKeyPress}
-      readOnly={readOnly}
-      ref={elementRef}
-      tabIndex={injected.tabIndex}
-      {...passThroughProps}
-    >
-      {media && <CardMedia {...media} />}
-      <CardContent className={classes.cardContent}>
-        {text ? <Typography align="center" {...typographyProps}>{children}</Typography> : children}
-      </CardContent>
-      {hasActions && <CardActions>{Actions}</CardActions>}
+    <Card className={clsx(classes.root, className)} {...passThroughProps}>
+      <CardActionArea
+        disabled={disabled}
+        onClick={handleTap}
+        onKeyPress={handleKeyPress}
+        readOnly={readOnly}
+        ref={elementRef}
+      >
+        {media && <CardMedia {...media} />}
+        <CardContent className={classes.cardContent}>
+          {text ? <Typography align="center" {...typographyProps}>{children}</Typography> : children}
+        </CardContent>
+      </CardActionArea>
+      {hasActions && (
+        <CardActions
+          className={classes.cardActions}
+          disableSpacing
+        >
+          {Actions}
+        </CardActions>
+      )}
       {hasProgress && (
         <Progress
           timeout={timeout}
@@ -82,7 +103,7 @@ const CardElement = forwardRef((props, ref) => {
           enabled={injected.enabled}
         />
       )}
-    </CardElementArea>
+    </Card>
   );
 });
 
@@ -97,6 +118,10 @@ CardElement.propTypes = {
    * @see {@link https://material-ui.com/components/cards/#card | MUI Card demo}
    */
   children: PropTypes.node.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
   /**
    * A set of props injected by the Story renderer
    */
@@ -118,10 +143,6 @@ CardElement.propTypes = {
      * @see Navigation Class description
      */
     nav: PropTypes.instanceOf(Navigation).isRequired,
-    /**
-     * The location of the Element in the DOM tree or (index of Element in history + 1)
-     */
-    tabIndex: PropTypes.number.isRequired,
   }),
   /**
    * Object of Material UI CardMedia props
@@ -164,6 +185,7 @@ CardElement.propTypes = {
 
 CardElement.defaultProps = {
   actions: [],
+  className: '',
   injected: undefined,
   media: null,
   onEnable: noop,

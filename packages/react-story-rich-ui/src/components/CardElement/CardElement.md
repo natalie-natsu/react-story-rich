@@ -47,28 +47,31 @@ const OurStory = connect(mapStateToProps)(({ history, dispatch }) => {
       ...propsByStates,
     },
   
-    `A big flash sucks you towards nothingness.
-     The dragon was as strong as you were reckless.`,
+    {
+      children: `A big flash sucks you towards nothingness.
+      The dragon was as strong as you were reckless.`,
+      onTap: ({ goForward }) => goForward(1),
+    },
   
     `With an ounce of intelligence, you can discern the true from the false.
      This dragon was only the fruit of your imagination.`,
+
+    { children: 'The End.', readOnly: true }
   ];
 
   return (
     <>
       <Story
-        autoFocus={false}
-        autoScroll={false}
         dispatch={dispatch}
         history={history}
         nodeComponent={CardElement}
         tree={new Tree(root)}
       />
       <Grid container component={Paper} className={classes.interactions}>
-        {switches}
         <Grid item xs={6} sm={3}>
-          <Button variant="contained" color="primary" size="small" onClick={handleReset}>Reset</Button>
+          <Button variant="outlined" onClick={handleReset}>Reset</Button>
         </Grid>
+        {switches}
       </Grid>
     </>
   );

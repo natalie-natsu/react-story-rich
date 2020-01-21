@@ -32,6 +32,10 @@ class Navigation {
     + isChunkValid(chunk: Array): Array
   */
 
+  /* Aliases */
+
+  static skip = ({ goForward }) => goForward();
+
   /* Predicates */
 
   static findById = (_id) => ['_id', _id];

@@ -1,13 +1,12 @@
-import React, { forwardRef, isValidElement, useCallback, useEffect, useMemo } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import last from 'lodash/last';
 
-import Tree from '../../classes/Tree';
-import Element from '../Element';
+import Tree, { isCustomComponent, isPipe, hasProperties } from '../../classes/Tree';
 import Navigation from '../../classes/Navigation';
+import Element from '../Element';
 
 const scrollToBottom = (ref) => {
   if (ref) {
@@ -19,29 +18,24 @@ const scrollToBottom = (ref) => {
 };
 
 export const nodeRenderer = (node, nav, defaultComponent = Element) => {
-  // A Pipe
-  if (isString(node)) {
-    return [defaultComponent, {
-      text: true,
-      children: node,
-      onTap: ({ goForward }) => goForward(),
-    }];
+  if (isPipe(node)) {
+    const pipeProps = { text: true, children: node, onTap: Navigation.skip };
+    return [defaultComponent, pipeProps];
   }
 
-  const { component, ...nodeProps } = node;
-
-  if (isEmpty(component)) { return [defaultComponent, nodeProps]; }
-
-  const isValid = isValidElement(component);
-
-  if (!isValid) {
-    // eslint-disable-next-line no-console
-    console.warn(`node.component is not a valid React Element --> fallback to defaultComponent`);
+  if (isCustomComponent(node)) {
+    const { component, ...nodeProps } = node;
+    return [component, nodeProps];
   }
 
-  return [isValid ? component : defaultComponent, nodeProps];
+  if (hasProperties(node)) {
+    const props = { ...node, text: isString(node.children) };
+    return [defaultComponent, props];
+  }
+
+  // Story render a Break if nothing match isPipe, isCustomComponent, or hasProperties
+  return ['hr', { onTap: Navigation.skip }];
 };
-
 
 const Story = forwardRef((props, ref) => {
   const {
@@ -85,7 +79,6 @@ const Story = forwardRef((props, ref) => {
           enabled: isEnabled(key),
           key,
           location,
-          tabIndex: key + 1,
           nav,
         };
 
