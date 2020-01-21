@@ -30,7 +30,7 @@
     "test": "cd ../../ && cross-env NODE_ENV=test jest 'packages/react-story-rich-ui/**/*.test.js' --exclude '**/node_modules/**'"
   },
   "peerDependencies": {
-    "@react-story-rich/core": "^2.0.0-beta",
+    "@react-story-rich/core": "^2.0.0-beta.3",
     "@material-ui/core": "^4.7.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
