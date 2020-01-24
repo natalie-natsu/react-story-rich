@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useEffect, useMemo } from 'react';
+import React, { forwardRef, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import isString from 'lodash/isString';
@@ -7,15 +7,6 @@ import last from 'lodash/last';
 import Tree, { isCustomComponent, isPipe, hasProperties } from '../../classes/Tree';
 import Navigation from '../../classes/Navigation';
 import Element from '../Element';
-
-const scrollToBottom = (ref) => {
-  if (ref) {
-    window.scrollTo({
-      top: ref.current.offsetTop + ref.current.offsetHeight,
-      behavior: 'smooth',
-    });
-  }
-};
 
 export const nodeRenderer = (node, nav, defaultComponent = Element) => {
   if (isPipe(node)) {
@@ -40,7 +31,6 @@ export const nodeRenderer = (node, nav, defaultComponent = Element) => {
 const Story = forwardRef((props, ref) => {
   const {
     autoFocus,
-    autoScroll,
     component: Component,
     dispatch,
     history,
@@ -61,10 +51,6 @@ const Story = forwardRef((props, ref) => {
   const getNavigation = useCallback(({ key }) => (
     new Navigation(key, dispatch)
   ), [dispatch]);
-
-  useEffect(() => {
-    if (autoScroll) { scrollToBottom(ref); }
-  }, [history, autoScroll, ref]);
 
   return (
     <Component ref={ref} {...passThroughProps}>
@@ -93,11 +79,6 @@ Story.propTypes = {
    * If set to false, elements will not be focused when being enabled.
    */
   autoFocus: PropTypes.bool,
-  /**
-   * If set to true, the body will scroll To Bottom
-   * each time a new Element component is enabled.
-   */
-  autoScroll: PropTypes.bool,
   /**
    * The component used for the root node.
    * Either a string to use a DOM element or a component.
@@ -144,7 +125,6 @@ Story.propTypes = {
 
 Story.defaultProps = {
   autoFocus: true,
-  autoScroll: true,
   component: 'main',
   nodeComponent: Element,
   nodeRenderer,
