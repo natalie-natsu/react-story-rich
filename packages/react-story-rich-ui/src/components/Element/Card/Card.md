@@ -64,7 +64,7 @@ const OurStory = connect(mapStateToProps)(({ history, dispatch }) => {
       <Story
         dispatch={dispatch}
         history={history}
-        nodeComponent={CardElement}
+        defaultElement={CardElement}
         tree={new Tree(root)}
       />
       <Grid container component={Paper} className={classes.interactions}>

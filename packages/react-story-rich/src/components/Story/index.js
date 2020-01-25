@@ -6,38 +6,39 @@ import last from 'lodash/last';
 
 import Tree, { isCustomComponent, isPipe, hasProperties } from '../../classes/Tree';
 import Navigation from '../../classes/Navigation';
-import Element from '../Element';
+import DefaultElement from '../Element';
+import Break from '../Element/Break';
 
-export const nodeRenderer = (node, nav, defaultComponent = Element) => {
+export const defaultRenderer = (node, nav, defaultElement) => {
   if (isPipe(node)) {
     const pipeProps = { text: true, children: node, onTap: Navigation.skip };
-    return [defaultComponent, pipeProps];
+    return [defaultElement, pipeProps];
   }
 
   if (isCustomComponent(node)) {
-    const { component, ...nodeProps } = node;
-    return [component, nodeProps];
+    const { Element, ...passThroughProps } = node;
+    return [Element, passThroughProps];
   }
 
   if (hasProperties(node)) {
     const props = { ...node, text: isString(node.children) };
-    return [defaultComponent, props];
+    return [defaultElement, props];
   }
 
   // Story render a Break if nothing match isPipe, isCustomComponent, or hasProperties
-  return ['hr', { onTap: Navigation.skip }];
+  return [Break, { onTap: Navigation.skip }];
 };
 
 const Story = forwardRef((props, ref) => {
   const {
     autoFocus,
-    component: Component,
+    component: StoryComponent,
+    defaultElement,
     dispatch,
     history,
-    nodeComponent,
-    nodeRenderer: renderer,
+    renderer,
     tree: root,
-    ...passThroughProps
+    ...storyPassThroughProps
   } = props;
 
   const currentLocation = useMemo(() => last(history).to, [history]);
@@ -53,12 +54,12 @@ const Story = forwardRef((props, ref) => {
   ), [dispatch]);
 
   return (
-    <Component ref={ref} {...passThroughProps}>
+    <StoryComponent ref={ref} {...storyPassThroughProps}>
       {history.map(({ to: key }) => {
         const { node, location } = getNode(key);
         const nav = getNavigation(location);
 
-        const [NodeComponent, nodeProps] = renderer(node, nav, nodeComponent);
+        const [Element, passThroughProps] = renderer(node, nav, defaultElement);
 
         const injected = {
           autoFocus,
@@ -68,9 +69,9 @@ const Story = forwardRef((props, ref) => {
           nav,
         };
 
-        return <NodeComponent key={location.label} injected={injected} {...nodeProps} />;
+        return <Element key={location.label} injected={injected} {...passThroughProps} />;
       })}
-    </Component>
+    </StoryComponent>
   );
 });
 
@@ -84,6 +85,10 @@ Story.propTypes = {
    * Either a string to use a DOM element or a component.
    */
   component: PropTypes.elementType,
+  /**
+   * A valid element type for default node rendering
+   */
+  defaultElement: PropTypes.elementType,
   /**
    * The dispatcher of your store
    */
@@ -108,14 +113,10 @@ Story.propTypes = {
     type: PropTypes.string,
   })).isRequired,
   /**
-   * A valid element type for default node rendering
-   */
-  nodeComponent: PropTypes.elementType,
-  /**
    * A function returning [component, props]
    * for Story rendering.
    */
-  nodeRenderer: PropTypes.func,
+  renderer: PropTypes.func,
   /**
    * An instance of a Tree
    * See Tree API
@@ -126,8 +127,8 @@ Story.propTypes = {
 Story.defaultProps = {
   autoFocus: true,
   component: 'main',
-  nodeComponent: Element,
-  nodeRenderer,
+  defaultElement: DefaultElement,
+  renderer: defaultRenderer,
 };
 
 export default Story;
