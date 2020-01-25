@@ -49,7 +49,7 @@ export const isPipe = (node) => (
  */
 export const isCustomComponent = (node) => (
   isPlainObject(node)
-  && !isEmpty(node.component)
+  && !isEmpty(node.Element)
 );
 
 /**

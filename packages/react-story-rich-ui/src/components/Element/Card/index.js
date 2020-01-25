@@ -123,6 +123,7 @@ CardElement.propTypes = {
    */
   className: PropTypes.string,
   /**
+   * @ignore
    * A set of props injected by the Story renderer
    */
   injected: PropTypes.shape({

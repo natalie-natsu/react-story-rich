@@ -48,12 +48,12 @@ const ButtonElement = forwardRef(({
   return (
     <Button
       className={clsx(classes.root, className, { useFont: !isEmpty(fontFamily) })}
+      disabled={!injected.enabled}
       fullWidth
       onClick={handleTap}
       onKeyPress={handleKeyPress}
       ref={elementRef}
       variant="outlined"
-      disabled={!injected.enabled}
       {...passThroughProps}
     >
       {children}
@@ -80,6 +80,7 @@ ButtonElement.propTypes = {
    */
   fontSize: PropTypes.oneOf(['inherit', 'small', 'medium', 'large', 'xl']),
   /**
+   * @ignore
    * A set of props injected by the Story renderer
    */
   injected: PropTypes.shape({
@@ -100,7 +101,7 @@ ButtonElement.propTypes = {
      * @see Navigation Class description
      */
     nav: PropTypes.object.isRequired,
-  }),
+  }).isRequired,
   /**
    * Callback triggered when Element is enabled and is clicked or key pressed.
    */
@@ -118,7 +119,6 @@ ButtonElement.defaultProps = {
   className: '',
   fontFamily: 'inherit',
   fontSize: 'inherit',
-  injected: undefined,
   onTap: null,
   readOnly: false,
 };
