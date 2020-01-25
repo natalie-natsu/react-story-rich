@@ -3,8 +3,8 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import useTap from '@react-story-rich/core/hooks/useTap';
-import useFocus from '@react-story-rich/core/hooks/useFocus';
+import useTap from '../../../hooks/useTap';
+import useFocus from '../../../hooks/useFocus';
 
 const BreakElement = forwardRef(({ onTap, injected, ...passThroughProps }, ref) => {
   const elementRef = useRef(null);
