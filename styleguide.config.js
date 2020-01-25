@@ -18,8 +18,13 @@ module.exports = {
   { name: 'Game UI', content: 'documentation/GAME_UI.md' },
   { name: 'Deployment', content: 'documentation/DEPLOYMENT.md' },
 
-  { name: 'Custom Element', content: 'documentation/CUSTOM_COMPONENT.md' },
   {
+    name: 'Custom Element',
+    content: 'documentation/CUSTOM_COMPONENT.md',
+    components: 'packages/react-story-rich-ui/src/components/Element/+([A-Z]*)/*.js',
+    exampleMode: 'expand',
+    usageMode: 'expand',
+  }, {
     name: 'Styled Components',
     content: 'packages/react-story-rich-ui/README.md',
     components: 'packages/react-story-rich-ui/src/components/+([A-Z]*)/*.js',

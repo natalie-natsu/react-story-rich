@@ -18,10 +18,10 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 
-import useActions from '../../hooks/useActions';
-import useProgress from '../../hooks/useProgress';
+import useActions from '../../../hooks/useActions';
+import useProgress from '../../../hooks/useProgress';
 
-import Progress from '../Progress';
+import Progress from '../../Progress';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -59,13 +59,13 @@ const CardElement = forwardRef(function CardElement(props, ref) {
 
   const elementRef = useRef(null);
   const [handleTap, handleKeyPress] = useTap(onTap, readOnly, injected);
-  const [hasActions, Actions] = useActions(actions, injected);
+  const [hasActions, Actions, actionRef] = useActions(actions, injected);
   const hasProgress = useProgress(onTimeout, timeout, injected, hasActions);
 
   useImperativeHandle(ref, () => ({ focus: elementRef.current.focus }));
 
   useEnabled(onEnable, injected);
-  useFocus(elementRef, injected);
+  useFocus(hasActions ? actionRef : elementRef, injected);
   useTimeout(onTimeout, timeout, injected);
 
   const disabled = useMemo(() => (

@@ -13,14 +13,14 @@ import { resetHistory } from '@react-story-rich/core/reducers/history';
 import reducers from '@react-story-rich/core/reducers';
 import mapStateToProps from '@react-story-rich/core/reducers/mapStateToProps';
 
-import CardElement from '@react-story-rich/ui/components/CardElement';
+import CardElement from '@react-story-rich/ui/components/Element/Card';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 
-import useInteractions from '../../hooks/useInteractions';
+import useInteractions from '../../../hooks/useInteractions';
 
 const useStyles = makeStyles((theme) => ({
   interactions: {
