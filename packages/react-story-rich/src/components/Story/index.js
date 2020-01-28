@@ -55,7 +55,7 @@ const Story = forwardRef((props, ref) => {
 
   return (
     <StoryComponent ref={ref} {...storyPassThroughProps}>
-      {history.map(({ to: key }) => {
+      {history.map(({ to: key }, indexInHistory) => {
         const { node, location } = getNode(key);
         const nav = getNavigation(location);
 
@@ -64,6 +64,7 @@ const Story = forwardRef((props, ref) => {
         const injected = {
           autoFocus,
           enabled: isEnabled(key),
+          indexInHistory,
           key,
           location,
           nav,
