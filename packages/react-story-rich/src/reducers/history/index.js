@@ -21,7 +21,7 @@ export const updateHistorySnapshot = (indexInHistory, snapshot) => ({
 // REDUCER
 export const initialHistoryState = [{ from: null, to: 0 }];
 
-const setSnapshot = () => (state, { snapshot, indexInHistory }) => {
+const setSnapshot = (state, { snapshot, indexInHistory }) => {
   const newHistory = [...state];
   const index = indexInHistory || newHistory.length - 1;
 
